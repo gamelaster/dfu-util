@@ -183,10 +183,16 @@ static void help(void)
 		"  -Z --upload-size <bytes>\tSpecify the expected upload size in bytes\n"
 		"  -D --download <file>\t\tWrite firmware from <file> into device\n"
 		"  -R --reset\t\t\tIssue USB Reset signalling once we're finished\n"
-		"  -s --dfuse-address <address>\tST DfuSe mode, specify target address for\n"
-		"\t\t\t\traw file download or upload. Not applicable for\n"
-		"\t\t\t\tDfuSe file (.dfu) downloads\n"
 		"  -w --wait\t\t\tWait for device to appear\n"
+		"  -s --dfuse-address address<:...>\tST DfuSe mode string, specifying target\n"
+		"\t\t\t\taddress for raw file download or upload (not\n"
+		"\t\t\t\tapplicable for DfuSe file (.dfu) downloads).\n"
+		"\t\t\t\tAdd more DfuSe options separated with ':'\n"
+		"\t\tleave\t\tLeave DFU mode (jump to application)\n"
+		"\t\tmass-erase\tErase the whole device (requires \"force\")\n"
+		"\t\tunprotect\tErase read protected device (requires \"force\")\n"
+		"\t\tforce\t\tYou really know what you are doing!\n"
+		"\t\t<length>\tLength of firmware to upload from device\n"
 		);
 	exit(EX_USAGE);
 }
