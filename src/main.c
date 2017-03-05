@@ -53,6 +53,7 @@ int match_product_dfu = -1;
 int match_config_index = -1;
 int match_iface_index = -1;
 int match_iface_alt_index = -1;
+int match_devnum = -1;
 const char *match_iface_alt_name = NULL;
 const char *match_serial = NULL;
 const char *match_serial_dfu = NULL;
@@ -169,6 +170,7 @@ static void help(void)
 		"  -E --detach-delay seconds\tTime to wait before reopening a device after detach\n"
 		"  -d --device <vendor>:<product>[,<vendor_dfu>:<product_dfu>]\n"
 		"\t\t\t\tSpecify Vendor/Product ID(s) of DFU device\n"
+		"  -n --devnum <dnum>\t\tMatch given device number (devnum from --list)\n"
 		"  -p --path <bus-port. ... .port>\tSpecify path to DFU device\n"
 		"  -c --cfg <config_nr>\t\tSpecify the Configuration of DFU device\n"
 		"  -i --intf <intf_nr>\t\tSpecify the DFU Interface number\n"
@@ -220,6 +222,7 @@ static struct option opts[] = {
 	{ "download", 1, 0, 'D' },
 	{ "reset", 0, 0, 'R' },
 	{ "dfuse-address", 1, 0, 's' },
+	{ "devnum",1, 0, 'n' },
 	{ "wait", 1, 0, 'w' },
 	{ 0, 0, 0, 0 }
 };
@@ -250,7 +253,7 @@ int main(int argc, char **argv)
 
 	while (1) {
 		int c, option_index = 0;
-		c = getopt_long(argc, argv, "hVvleE:d:p:c:i:a:S:t:U:D:Rs:Z:w", opts,
+		c = getopt_long(argc, argv, "hVvleE:d:p:c:i:a:S:t:U:D:Rs:Z:wn:", opts,
 				&option_index);
 		if (c == -1)
 			break;
@@ -299,6 +302,9 @@ int main(int argc, char **argv)
 				match_iface_alt_name = optarg;
 				match_iface_alt_index = -1;
 			}
+			break;
+		case 'n':
+			match_devnum = atoi(optarg);
 			break;
 		case 'S':
 			parse_serial(optarg);

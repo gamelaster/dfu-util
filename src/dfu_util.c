@@ -309,6 +309,9 @@ found_dfu:
 					}
 				}
 
+				if (match_devnum >= 0 && match_devnum != libusb_get_device_address(dev))
+					continue;
+
 				if (libusb_open(dev, &devh)) {
 					warnx("Cannot open DFU device %04x:%04x", desc->idVendor, desc->idProduct);
 					break;

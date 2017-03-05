@@ -23,6 +23,7 @@ extern int match_product_dfu;
 extern int match_config_index;
 extern int match_iface_index;
 extern int match_iface_alt_index;
+extern int match_devnum;
 extern const char *match_iface_alt_name;
 extern const char *match_serial;
 extern const char *match_serial_dfu;
