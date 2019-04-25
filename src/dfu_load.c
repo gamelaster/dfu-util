@@ -139,6 +139,8 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 
 			/* Wait while device executes flashing */
 			milli_sleep(dst.bwPollTimeout);
+			if (verbose > 1)
+				printf("Poll timeout %i ms\n", dst.bwPollTimeout);
 
 		} while (1);
 		if (dst.bStatus != DFU_STATUS_OK) {
