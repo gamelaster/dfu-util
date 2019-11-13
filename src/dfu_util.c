@@ -73,16 +73,19 @@ static int find_descriptor(const uint8_t *desc_list, int list_len,
 }
 
 /*
- * Similar to libusb_get_string_descriptor_ascii but will allow
- * truncated descriptors (descriptor length mismatch) seen on
- * e.g. the STM32F427 ROM bootloader.
+ * Get a string descriptor that's UTF-8 (or ASCII) encoded instead
+ * of UTF-16 encoded like the USB specification mandates. Some
+ * devices, like the GD32VF103, both violate the spec in this way
+ * and store important information in the serial number field. This
+ * function does NOT append a NUL terminator to its buffer, so you
+ * must use the returned length to ensure you stay within bounds.
  */
-static int get_string_descriptor_ascii(libusb_device_handle *devh,
+static int get_utf8_string_descriptor(libusb_device_handle *devh,
     uint8_t desc_index, unsigned char *data, int length)
 {
 	unsigned char tbuf[255];
 	uint16_t langid;
-	int r, di, si;
+	int r, outlen;
 
 	/* get the language IDs and pick the first one */
 	r = libusb_get_string_descriptor(devh, 0, 0, tbuf, sizeof(tbuf));
@@ -102,6 +105,10 @@ static int get_string_descriptor_ascii(libusb_device_handle *devh,
 		warnx("Failed to retrieve string descriptor %d", desc_index);
 		return r;
 	}
+	if (r < 2 || tbuf[0] < 2) {
+		warnx("String descriptor %d too short", desc_index);
+		return -1;
+	}
 	if (tbuf[1] != LIBUSB_DT_STRING) {	/* sanity check */
 		warnx("Malformed string descriptor %d, type = 0x%02x", desc_index, tbuf[1]);
 		return -1;
@@ -111,14 +118,38 @@ static int get_string_descriptor_ascii(libusb_device_handle *devh,
 		tbuf[0] = r;	/* fix up descriptor length */
 	}
 
+	outlen = tbuf[0] - 2;
+	if (length < outlen)
+		outlen = length;
+
+	memcpy(data, tbuf + 2, outlen);
+
+	return outlen;
+}
+
+/*
+ * Similar to libusb_get_string_descriptor_ascii but will allow
+ * truncated descriptors (descriptor length mismatch) seen on
+ * e.g. the STM32F427 ROM bootloader.
+ */
+static int get_string_descriptor_ascii(libusb_device_handle *devh,
+    uint8_t desc_index, unsigned char *data, int length)
+{
+	unsigned char buf[255];
+	int r, di, si;
+
+	r = get_utf8_string_descriptor(devh, desc_index, buf, sizeof(buf));
+	if (r < 0)
+		return r;
+
 	/* convert from 16-bit unicode to ascii string */
-	for (di = 0, si = 2; si + 1 < tbuf[0] && di < length; si += 2) {
-		if (tbuf[si + 1])	/* high byte of unicode char */
+	for (di = 0, si = 0; si + 1 < r && di < length; si += 2) {
+		if (buf[si + 1])	/* high byte of unicode char */
 			data[di++] = '?';
 		else
-			data[di++] = tbuf[si];
+			data[di++] = buf[si];
 	}
-	data[di] = 0;
+	data[di] = '\0';
 	return di;
 }
 
@@ -234,6 +265,10 @@ found_dfu:
 			for (alt_idx = 0;
 			     alt_idx < uif->num_altsetting; alt_idx++) {
 				int dfu_mode;
+				uint16_t quirks;
+
+				quirks = get_quirks(desc->idVendor,
+				    desc->idProduct, desc->bcdDevice);
 
 				intf = &uif->altsetting[alt_idx];
 
@@ -285,11 +320,19 @@ found_dfu:
 					ret = -1;
 				if (ret < 1)
 					strcpy(alt_name, "UNKNOWN");
-				if (desc->iSerialNumber != 0)
-					ret = get_string_descriptor_ascii(devh,
-					    desc->iSerialNumber, (void *)serial_name, MAX_DESC_STR_LEN);
-				else
+				if (desc->iSerialNumber != 0) {
+					if (quirks & QUIRK_UTF8_SERIAL) {
+						ret = get_utf8_string_descriptor(devh, desc->iSerialNumber,
+						    (void *)serial_name, MAX_DESC_STR_LEN - 1);
+						if (ret >= 0)
+							serial_name[ret] = '\0';
+					} else {
+						ret = get_string_descriptor_ascii(devh, desc->iSerialNumber,
+						    (void *)serial_name, MAX_DESC_STR_LEN);
+					}
+				} else {
 					ret = -1;
+				}
 				if (ret < 1)
 					strcpy(serial_name, "UNKNOWN");
 				libusb_close(devh);
@@ -312,8 +355,7 @@ found_dfu:
 
 				pdfu->func_dfu = func_dfu;
 				pdfu->dev = libusb_ref_device(dev);
-				pdfu->quirks = get_quirks(desc->idVendor,
-				    desc->idProduct, desc->bcdDevice);
+				pdfu->quirks = quirks;
 				pdfu->vendor = desc->idVendor;
 				pdfu->product = desc->idProduct;
 				pdfu->bcdDevice = desc->bcdDevice;
