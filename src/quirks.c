@@ -19,6 +19,9 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include "portable.h"
 #include "quirks.h"
 
 uint16_t get_quirks(uint16_t vendor, uint16_t product, uint16_t bcdDevice)
@@ -56,8 +59,61 @@ uint16_t get_quirks(uint16_t vendor, uint16_t product, uint16_t bcdDevice)
 	/* Some GigaDevice GD32 devices have improperly-encoded serial numbers
 	 * and bad DfuSe descriptors which we use serial number to correct. */
 	if (vendor == VENDOR_GIGADEVICE &&
-	    product == PRODUCT_GD32)
+	    product == PRODUCT_GD32) {
 		quirks |= QUIRK_UTF8_SERIAL;
+		quirks |= QUIRK_DFUSE_LAYOUT;
+	}
 
 	return (quirks);
+}
+
+#define GD32VF103_FLASH_BASE 0x08000000
+
+void fixup_dfuse_layout(struct dfu_if *dif, struct memsegment **segment_list)
+{
+	if (dif->vendor == VENDOR_GIGADEVICE &&
+	    dif->product == PRODUCT_GD32 &&
+	    dif->altsetting == 0 &&
+	    dif->serial_name &&
+	    strlen(dif->serial_name) == 4 &&
+	    dif->serial_name[0] == '3' &&
+	    dif->serial_name[3] == 'J') {
+		struct memsegment *seg;
+		int count;
+
+		printf("Found GD32VF103, which reports a bad page size and "
+		       "count for its internal memory.\n");
+
+		seg = find_segment(*segment_list, GD32VF103_FLASH_BASE);
+		if (!seg) {
+			warnx("Could not fix GD32VF103 layout because there "
+			      "is no segment at 0x%08x", GD32VF103_FLASH_BASE);
+			return;
+		}
+
+		/* All GD32VF103 have this page size, according to Nucleisys's
+		 * dfu-util (https://github.com/riscv-mcu/gd32-dfu-utils/). */
+		seg->pagesize = 1024;
+
+		/* From Tables 2-1 and 2-2 ("devices features and peripheral
+		 * list") in the GD32VF103 Datasheet */
+		if (dif->serial_name[2] == 'B') {
+			count = 128;
+		} else if (dif->serial_name[2] == '8') {
+			count = 64;
+		} else if (dif->serial_name[2] == '6') {
+			count = 32;
+		} else if (dif->serial_name[2] == '4') {
+			count = 16;
+		} else {
+			warnx("Unknown flash size '%c' in part number; "
+			      "defaulting to 128KB.", dif->serial_name[2]);
+			count = 128;
+		}
+
+		seg->end = seg->start + (count * seg->pagesize) - 1;
+
+		printf("Fixed layout based on part number: page size %d, "
+		       "count %d.\n", seg->pagesize, count);
+	}
 }

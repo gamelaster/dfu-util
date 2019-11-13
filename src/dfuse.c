@@ -33,6 +33,7 @@
 #include "dfu_file.h"
 #include "dfuse.h"
 #include "dfuse_mem.h"
+#include "quirks.h"
 
 #define DFU_TIMEOUT 5000
 
@@ -326,6 +327,8 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 		mem_layout = parse_memory_layout((char *)dif->alt_name);
 		if (!mem_layout)
 			errx(EX_IOERR, "Failed to parse memory layout");
+		if (dif->quirks & QUIRK_DFUSE_LAYOUT)
+			fixup_dfuse_layout(dif, &mem_layout);
 
 		segment = find_segment(mem_layout, dfuse_address);
 		if (!dfuse_force &&
@@ -657,9 +660,11 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 	if (dfuse_options)
 		dfuse_parse_options(dfuse_options);
 	mem_layout = parse_memory_layout((char *)dif->alt_name);
-	if (!mem_layout) {
+	if (!mem_layout)
 		errx(EX_IOERR, "Failed to parse memory layout");
-	}
+	if (dif->quirks & QUIRK_DFUSE_LAYOUT)
+		fixup_dfuse_layout(dif, &mem_layout);
+
 	if (dfuse_unprotect) {
 		if (!dfuse_force) {
 			errx(EX_IOERR, "The read unprotect command "
