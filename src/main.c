@@ -150,7 +150,7 @@ static int parse_number(char *str, char *nmb)
 		errx(EX_SOFTWARE, "Something went wrong with the argument of --%s\n", str);
 	}
 
-	if (endptr == str) {
+	if (endptr == nmb) {
 		errx(EX_SOFTWARE, "No digits were found from the argument of --%s\n", str);
 	}
 
