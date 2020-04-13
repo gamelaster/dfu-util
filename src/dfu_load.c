@@ -84,7 +84,7 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 	}
 	if (total_bytes == 0)
 		printf("\nFailed.\n");
-	if (verbose)
+	else
 		printf("Received a total of %i bytes\n", total_bytes);
 	if (expected_size != 0 && total_bytes != expected_size)
 		errx(EX_SOFTWARE, "Unexpected number of bytes uploaded from device");
