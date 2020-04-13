@@ -165,7 +165,7 @@ if __name__=="__main__":
           curdata = ""
           line = line.rstrip()
           if line.startswith ( "S0" ):
-            name = binascii.a2b_hex(line[8:len(line) - 2]).replace(".s19", "")
+            name = binascii.a2b_hex(line[8:len(line) - 2])
           elif line.startswith ( "S3" ):
             try:
               curaddress = int(line[4:12], 16) & 0xFFFFFFFF
