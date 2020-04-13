@@ -193,7 +193,7 @@ int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		}
 		page_size = segment->pagesize;
 		if (verbose > 1)
-			printf("Erasing page size %i at address 0x%08x, page "
+			fprintf(stderr, "Erasing page size %i at address 0x%08x, page "
 			       "starting at 0x%08x\n", page_size, address,
 			       address & ~(page_size - 1));
 		buf[0] = 0x41;	/* Erase command */
@@ -201,7 +201,7 @@ int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		last_erased_page = address & ~(page_size - 1);
 	} else if (command == SET_ADDRESS) {
 		if (verbose > 2)
-			printf("  Setting address pointer to 0x%08x\n",
+			fprintf(stderr, "  Setting address pointer to 0x%08x\n",
 			       address);
 		buf[0] = 0x21;	/* Set Address Pointer command */
 		length = 5;
@@ -247,7 +247,7 @@ int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		}
 		/* wait while command is executed */
 		if (verbose)
-			printf("   Poll timeout %i ms\n", dst.bwPollTimeout);
+			fprintf(stderr, "   Poll timeout %i ms\n", dst.bwPollTimeout);
 		milli_sleep(dst.bwPollTimeout);
 		if (command == READ_UNPROTECT)
 			return ret;
@@ -460,7 +460,7 @@ int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddress,
 			if (((address + chunk_size - 1) & ~(page_size - 1)) !=
 			    last_erased_page) {
 				if (verbose > 2)
-					printf(" Chunk extends into next page,"
+					fprintf(stderr, " Chunk extends into next page,"
 					       " erase it as well\n");
 				dfuse_special_command(dif,
 						      address + chunk_size - 1,
@@ -481,7 +481,7 @@ int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddress,
 			chunk_size = dwElementSize - p;
 
 		if (verbose) {
-			printf(" Download from image offset "
+			fprintf(stderr, " Download from image offset "
 			       "%08x to memory %08x-%08x, size %i\n",
 			       p, address, address + chunk_size - 1,
 			       chunk_size);
