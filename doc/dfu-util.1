@@ -170,6 +170,17 @@ is \-, the firmware is read from stdin.
 .B "\-R, \-\-reset"
 Issue USB reset signalling after upload or download has finished.
 .TP
+.B "\-e, \-\-detach"
+Request that the device re-enumerate out of run-time mode and into DFU mode as
+when uploading or downloading, but exit immediately after sending the request.
+.TP
+.BR "\-E, \-\-detach-delay" " SECONDS"
+When uploading or downloading, wait
+.B SECONDS
+seconds for the device to re-enumerate after sending the detach request before
+giving up. Defaults to 5 seconds. This option has no effect with \fB-e\fP,
+since that causes dfu-util to immediately exit after sending the detach request.
+.TP
 .BR "\-s, \-\-dfuse-address" " ADDRESS"
 Specify target address for raw binary download/upload on DfuSe devices. Do
 .B not
