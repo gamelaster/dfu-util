@@ -136,6 +136,7 @@ Specify the DFU interface number.
 Specify the altsetting of the DFU interface by name or by number.
 .TP
 .BR "\-S, \-\-serial" " [\fIRun-Time SERIAL\fP][,[\fIDFU Mode SERIAL\fP]]"
+.RS
 Specify the run-time and DFU mode serial numbers used to further restrict
 device matches.  If multiple, identical DFU devices are simultaneously
 connected to a system then vendor and product ID will be insufficient for
@@ -145,6 +146,7 @@ parameter to specify a serial number which also must match.
 If only a single serial number is specified, then the same serial number is
 used in both run-time and DFU mode. An empty serial number will match any
 serial number in the corresponding mode.
+.RE
 .TP
 .B "\-t, \-\-transfer-size" " SIZE"
 Specify the number of bytes per USB transfer. The optimal value is
