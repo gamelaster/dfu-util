@@ -148,12 +148,12 @@ used in both run-time and DFU mode. An empty serial number will match any
 serial number in the corresponding mode.
 .RE
 .TP
-.B "\-t, \-\-transfer-size" " SIZE"
+.BR "\-t, \-\-transfer-size" " SIZE"
 Specify the number of bytes per USB transfer. The optimal value is
 usually determined automatically so this option is rarely useful. If
 you need to use this option for a device, please report it as a bug.
 .TP
-.B "\-Z, \-\-upload-size" " SIZE"
+.BR "\-Z, \-\-upload-size" " SIZE"
 Specify the expected upload size, in bytes.
 .TP
 .BR "\-U, \-\-upload" " FILE"
@@ -163,12 +163,14 @@ Read firmware from device into
 .BR "\-D, \-\-download" " FILE"
 Write firmware from
 .B FILE
-into device. When FILE is \-, the firmware is read from stdin.
+into device. When
+.B FILE
+is \-, the firmware is read from stdin.
 .TP
 .B "\-R, \-\-reset"
 Issue USB reset signalling after upload or download has finished.
 .TP
-.BR "\-s, \-\-dfuse-address" " address"
+.BR "\-s, \-\-dfuse-address" " ADDRESS"
 Specify target address for raw binary download/upload on DfuSe devices. Do
 .B not
 use this for downloading DfuSe (.dfu) files. Modifiers can be added

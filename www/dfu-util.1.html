@@ -97,22 +97,22 @@ Ignore any device in run-time mode, and Work with any device in DFU mode</p>
 <dd><p>Specify the run-time and DFU mode serial numbers used to further restrict device matches. If multiple, identical DFU devices are simultaneously connected to a system then vendor and product ID will be insufficient for targeting a single device. In this situation, it may be possible to use this parameter to specify a serial number which also must match.</p>
 <p>If only a single serial number is specified, then the same serial number is used in both run-time and DFU mode. An empty serial number will match any serial number in the corresponding mode.</p>
 </dd>
-<dt><strong>-t, --transfer-size SIZE</strong></dt>
+<dt><strong>-t, --transfer-size</strong> SIZE</dt>
 <dd><p>Specify the number of bytes per USB transfer. The optimal value is usually determined automatically so this option is rarely useful. If you need to use this option for a device, please report it as a bug.</p>
 </dd>
-<dt><strong>-Z, --upload-size SIZE</strong></dt>
+<dt><strong>-Z, --upload-size</strong> SIZE</dt>
 <dd><p>Specify the expected upload size, in bytes.</p>
 </dd>
 <dt><strong>-U, --upload</strong> FILE</dt>
 <dd><p>Read firmware from device into <strong>FILE</strong>.</p>
 </dd>
 <dt><strong>-D, --download</strong> FILE</dt>
-<dd><p>Write firmware from <strong>FILE</strong> into device. When FILE is -, the firmware is read from stdin.</p>
+<dd><p>Write firmware from <strong>FILE</strong> into device. When <strong>FILE</strong> is -, the firmware is read from stdin.</p>
 </dd>
 <dt><strong>-R, --reset</strong></dt>
 <dd><p>Issue USB reset signalling after upload or download has finished.</p>
 </dd>
-<dt><strong>-s, --dfuse-address</strong> address</dt>
+<dt><strong>-s, --dfuse-address</strong> ADDRESS</dt>
 <dd><p>Specify target address for raw binary download/upload on DfuSe devices. Do <strong>not</strong> use this for downloading DfuSe (.dfu) files. Modifiers can be added to the address, separated by a colon, to perform special DfuSE commands such as "leave" DFU mode, "unprotect" and "mass-erase" flash memory.</p>
 </dd>
 <dt><strong>-v, --verbose</strong></dt>
