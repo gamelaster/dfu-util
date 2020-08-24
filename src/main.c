@@ -330,6 +330,10 @@ int main(int argc, char **argv)
 			break;
 		}
 	}
+	if (optind != argc) {
+		fprintf(stderr, "Error: Unexpected argument: %s\n\n", argv[optind]);
+		help();
+	}
 
 	print_version();
 	if (mode == MODE_VERSION) {
