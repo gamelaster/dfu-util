@@ -2,10 +2,11 @@
  * dfu-util
  *
  * Copyright 2007-2008 by OpenMoko, Inc.
- * Copyright 2010-2019 Tormod Volden and Stefan Schmidt
+ * Copyright 2010-2012 Stefan Schmidt
  * Copyright 2013-2014 Hans Petter Selasky <hps@bitfrost.no>
+ * Copyright 2010-2020 Tormod Volden
  *
- * Written by Harald Welte <laforge@openmoko.org>
+ * Originally written by Harald Welte <laforge@openmoko.org>
  *
  * Based on existing code of dfu-programmer-0.4
  *
