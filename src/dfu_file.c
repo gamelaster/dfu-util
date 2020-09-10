@@ -96,7 +96,7 @@ static int probe_prefix(struct dfu_file *file)
 	if ((prefix[0] == 0x01) && (prefix[1] == 0x00)) {
 		uint32_t payload_length = (prefix[7] << 24) | (prefix[6] << 16) |
 			(prefix[5] << 8) | prefix[4];
-		uint32_t expected_payload_length = file->size.total - LMDFU_PREFIX_LENGTH - file->size.suffix;
+		uint32_t expected_payload_length = (uint32_t) file->size.total - LMDFU_PREFIX_LENGTH - file->size.suffix;
 		if (payload_length != expected_payload_length)
 			return 1;
 		file->prefix_type = LMDFU_PREFIX;
@@ -200,7 +200,7 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 	free(file->firmware);
 
 	if (!strcmp(file->name, "-")) {
-		int read_bytes;
+		size_t read_bytes;
 
 #ifdef WIN32
 		_setmode( _fileno( stdin ), _O_BINARY );
@@ -216,17 +216,20 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 			file->size.total += read_bytes;
 		}
 		if (verbose)
-			printf("Read %i bytes from stdin\n", file->size.total);
+			printf("Read %lli bytes from stdin\n", (long long) file->size.total);
 		/* Never require suffix when reading from stdin */
 		check_suffix = MAYBE_SUFFIX;
 	} else {
+		ssize_t read_count;
+		off_t read_total = 0;
+
 		f = open(file->name, O_RDONLY | O_BINARY);
 		if (f < 0)
 			err(EX_IOERR, "Could not open file %s for reading", file->name);
 
 		offset = lseek(f, 0, SEEK_END);
 
-		if ((int)offset < 0 || (int)offset != offset)
+		if (offset < 0)
 			err(EX_IOERR, "File size is too big");
 
 		if (lseek(f, 0, SEEK_SET) != 0)
@@ -235,8 +238,14 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 		file->size.total = offset;
 		file->firmware = dfu_malloc(file->size.total);
 
-		if (read(f, file->firmware, file->size.total) != file->size.total) {
-			err(EX_IOERR, "Could not read %d bytes from %s",
+		while (read_total < file->size.total) {
+			read_count = read(f, file->firmware + read_total, file->size.total - read_total);
+			if (read_count == 0)
+				break;
+			read_total += read_count;
+		}
+		if (read_total != file->size.total) {
+			err(EX_IOERR, "Could not read %ld bytes from %s",
 			    file->size.total, file->name);
 		}
 		close(f);

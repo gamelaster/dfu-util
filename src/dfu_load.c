@@ -44,7 +44,7 @@
 int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
     int expected_size, int fd)
 {
-	int total_bytes = 0;
+	off_t total_bytes = 0;
 	unsigned short transaction = 0;
 	unsigned char *buf;
 	int ret;
@@ -86,16 +86,16 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 	if (total_bytes == 0)
 		printf("\nFailed.\n");
 	else
-		printf("Received a total of %i bytes\n", total_bytes);
+		printf("Received a total of %lli bytes\n", (long long) total_bytes);
 	if (expected_size != 0 && total_bytes != expected_size)
 		errx(EX_SOFTWARE, "Unexpected number of bytes uploaded from device");
 	return ret;
 }
 
-int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
+off_t dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 {
-	int bytes_sent;
-	int expected_size;
+	off_t bytes_sent;
+	off_t expected_size;
 	unsigned char *buf;
 	unsigned short transaction = 0;
 	struct dfu_status dst;
@@ -109,12 +109,12 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 
 	dfu_progress_bar("Download", 0, 1);
 	while (bytes_sent < expected_size) {
-		int bytes_left;
+		off_t bytes_left;
 		int chunk_size;
 
 		bytes_left = expected_size - bytes_sent;
 		if (bytes_left < xfer_size)
-			chunk_size = bytes_left;
+			chunk_size = (int) bytes_left;
 		else
 			chunk_size = xfer_size;
 
@@ -166,7 +166,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 	dfu_progress_bar("Download", bytes_sent, bytes_sent);
 
 	if (verbose)
-		printf("Sent a total of %i bytes\n", bytes_sent);
+		printf("Sent a total of %lli bytes\n", (long long) bytes_sent);
 
 get_status:
 	/* Transition to MANIFEST_SYNC state */

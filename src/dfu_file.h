@@ -11,7 +11,7 @@ struct dfu_file {
     uint8_t *firmware;
     /* Different sizes */
     struct {
-	int total;
+	off_t total;
 	int prefix;
 	int suffix;
     } size;
