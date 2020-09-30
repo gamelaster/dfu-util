@@ -613,6 +613,8 @@ status_again:
 
 	if (dfu_root->func_dfu.bcdDFUVersion == libusb_cpu_to_le16(0x11a))
 		dfuse_device = 1;
+	else if (dfuse_options)
+		printf("Warning: DfuSe option used on non-DfuSe device\n");
 
 	/* If not overridden by the user */
 	if (!transfer_size) {
