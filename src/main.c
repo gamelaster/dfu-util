@@ -616,16 +616,17 @@ status_again:
 	else if (dfuse_options)
 		printf("Warning: DfuSe option used on non-DfuSe device\n");
 
-	/* If not overridden by the user */
-	if (!transfer_size) {
-		transfer_size = libusb_le16_to_cpu(
-		    dfu_root->func_dfu.wTransferSize);
-		if (transfer_size) {
-			printf("Device returned transfer size %i\n",
-			       transfer_size);
-		} else {
+	/* Get from device or user, warn if overridden */
+	int func_dfu_transfer_size = libusb_le16_to_cpu(dfu_root->func_dfu.wTransferSize);
+	if (func_dfu_transfer_size) {
+		printf("Device returned transfer size %i\n", func_dfu_transfer_size);
+		if (!transfer_size)
+			transfer_size = func_dfu_transfer_size;
+		else
+			printf("Warning: Overriding device-reported transfer size\n");
+	} else {
+		if (!transfer_size)
 			errx(EX_IOERR, "Transfer size must be specified");
-		}
 	}
 
 #ifdef HAVE_GETPAGESIZE
