@@ -17,3 +17,7 @@
 
 	make install
 
+   If installing to a system directory use
+
+	sudo make install
+
