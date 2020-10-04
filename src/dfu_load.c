@@ -59,7 +59,8 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 		rc = dfu_upload(dif->dev_handle, dif->interface,
 		    xfer_size, transaction++, buf);
 		if (rc < 0) {
-			warnx("\nError during upload");
+			warnx("\nError during upload (%s)",
+			      libusb_error_name(rc));
 			ret = rc;
 			break;
 		}
@@ -121,7 +122,8 @@ off_t dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file
 		ret = dfu_download(dif->dev_handle, dif->interface,
 		    chunk_size, transaction++, chunk_size ? buf : NULL);
 		if (ret < 0) {
-			warnx("Error during download");
+			warnx("Error during download (%s)",
+			      libusb_error_name(ret));
 			goto out;
 		}
 		bytes_sent += chunk_size;
@@ -130,7 +132,8 @@ off_t dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file
 		do {
 			ret = dfu_get_status(dif, &dst);
 			if (ret < 0) {
-				errx(EX_IOERR, "Error during download get_status");
+				errx(EX_IOERR, "Error during download get_status (%s)",
+				     libusb_error_name(ret));
 				goto out;
 			}
 
@@ -159,7 +162,8 @@ off_t dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file
 	ret = dfu_download(dif->dev_handle, dif->interface,
 	    0, transaction, NULL);
 	if (ret < 0) {
-		errx(EX_IOERR, "Error sending completion packet");
+		errx(EX_IOERR, "Error sending completion packet (%s)",
+		     libusb_error_name(ret));
 		goto out;
 	}
 
@@ -172,7 +176,8 @@ get_status:
 	/* Transition to MANIFEST_SYNC state */
 	ret = dfu_get_status(dif, &dst);
 	if (ret < 0) {
-		warnx("unable to read DFU status after completion");
+		warnx("unable to read DFU status after completion (%s)",
+		      libusb_error_name(ret));
 		goto out;
 	}
 	printf("state(%u) = %s, status(%u) = %s\n", dst.bState,
@@ -194,7 +199,8 @@ get_status:
 		printf("Resetting USB to switch back to runtime mode\n");
 		ret = libusb_reset_device(dif->dev_handle);
 		if (ret < 0 && ret != LIBUSB_ERROR_NOT_FOUND) {
-			fprintf(stderr, "error resetting after download\n");
+			fprintf(stderr, "error resetting after download (%s)\n",
+				libusb_error_name(ret));
 		}
 		break;
 	case DFU_STATE_dfuIDLE:
