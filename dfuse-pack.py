@@ -16,6 +16,10 @@ except ImportError:
 DEFAULT_DEVICE="0x0483:0xdf11"
 DEFAULT_NAME=b'ST...'
 
+# Prefix and Suffix sizes are derived from ST's DfuSe File Format Specification (UM0391), DFU revision 1.1a
+PREFIX_SIZE=11
+SUFFIX_SIZE=16
+
 def named(tuple,names):
   return dict(list(zip(names.split(),tuple)))
 def consume(fmt,data,names):
@@ -54,20 +58,20 @@ def parse(file,dump_images=False):
         print('    DUMPED IMAGE TO "%s"' % out)
     if len(target):
       print("target %d: PARSE ERROR" % t)
-  suffix = named(struct.unpack('<4H3sBI',data[:16]),'device product vendor dfu ufd len crc')
+  suffix = named(struct.unpack('<4H3sBI',data[:SUFFIX_SIZE]),'device product vendor dfu ufd len crc')
   print('usb: %(vendor)04x:%(product)04x, device: 0x%(device)04x, dfu: 0x%(dfu)04x, %(ufd)s, %(len)d, 0x%(crc)08x' % suffix)
   if crc != suffix['crc']:
     print("CRC ERROR: computed crc32 is 0x%08x" % crc)
-  data = data[16:]
+  data = data[SUFFIX_SIZE:]
   if data:
     print("PARSE ERROR")
 
 def checkbin(binfile):
   data = open(binfile,'rb').read()
-  if (len(data) < 16):
+  if (len(data) < SUFFIX_SIZE):
     return
   crc = compute_crc(data[:-4])
-  suffix = named(struct.unpack('<4H3sBI',data[-16:]),'device product vendor dfu ufd len crc')
+  suffix = named(struct.unpack('<4H3sBI',data[-SUFFIX_SIZE:]),'device product vendor dfu ufd len crc')
   if crc == suffix['crc'] and suffix['ufd'] == b'UFD':
     print('usb: %(vendor)04x:%(product)04x, device: 0x%(device)04x, dfu: 0x%(dfu)04x, %(ufd)s, %(len)d, 0x%(crc)08x' % suffix)
     print("It looks like the file %s has a DFU suffix!" % binfile)
@@ -82,9 +86,9 @@ def build(file,targets,name=DEFAULT_NAME,device=DEFAULT_DEVICE):
       tdata += struct.pack('<2I',image['address'],len(image['data']))+image['data']
     tdata = struct.pack('<6sBI255s2I',b'Target',0,1,name,len(tdata),len(target)) + tdata
     data += tdata
-  data  = struct.pack('<5sBIB',b'DfuSe',1,len(data)+11,len(targets)) + data
+  data  = struct.pack('<5sBIB',b'DfuSe',1,PREFIX_SIZE + len(data),len(targets)) + data
   v,d=[int(x,0) & 0xFFFF for x in device.split(':',1)]
-  data += struct.pack('<4H3sB',0,d,v,0x011a,b'UFD',16)
+  data += struct.pack('<4H3sB',0,d,v,0x011a,b'UFD',SUFFIX_SIZE)
   crc   = compute_crc(data)
   data += struct.pack('<I',crc)
   open(file,'wb').write(data)
