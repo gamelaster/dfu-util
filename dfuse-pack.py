@@ -86,7 +86,7 @@ def build(file,targets,name=DEFAULT_NAME,device=DEFAULT_DEVICE):
       tdata += struct.pack('<2I',image['address'],len(image['data']))+image['data']
     tdata = struct.pack('<6sBI255s2I',b'Target',0,1,name,len(tdata),len(target)) + tdata
     data += tdata
-  data  = struct.pack('<5sBIB',b'DfuSe',1,PREFIX_SIZE + len(data),len(targets)) + data
+  data  = struct.pack('<5sBIB',b'DfuSe',1,PREFIX_SIZE + len(data) + SUFFIX_SIZE,len(targets)) + data
   v,d=[int(x,0) & 0xFFFF for x in device.split(':',1)]
   data += struct.pack('<4H3sB',0,d,v,0x011a,b'UFD',SUFFIX_SIZE)
   crc   = compute_crc(data)
