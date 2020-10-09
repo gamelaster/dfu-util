@@ -390,7 +390,6 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 
 	dfu_abort_to_idle(dif);
 	if (dfuse_leave) {
-		dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
 		dfuse_dnload_chunk(dif, NULL, 0, 2); /* Zero-size */
 	}
 
@@ -683,7 +682,10 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		printf("Performing mass erase, this can take a moment\n");
 		dfuse_special_command(dif, 0, MASS_ERASE);
 	}
-	if (dfuse_address_present) {
+	if (!file->name) {
+		printf("DfuSe command mode\n");
+		ret = 0;
+	} else if (dfuse_address_present) {
 		if (file->bcdDFU == 0x11a) {
 			errx(EX_IOERR, "This is a DfuSe file, not "
 				"meant for raw download");
@@ -704,7 +706,6 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 	}
 
 	if (dfuse_leave) {
-		dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
 		dfuse_dnload_chunk(dif, NULL, 0, 2); /* Zero-size */
 	}
 	return ret;

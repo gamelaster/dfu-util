@@ -353,7 +353,7 @@ int main(int argc, char **argv)
 		exit(0);
 	}
 
-	if (mode == MODE_NONE) {
+	if (mode == MODE_NONE && !dfuse_options) {
 		fprintf(stderr, "You need to specify one of -D or -U\n");
 		help();
 	}
@@ -375,6 +375,11 @@ int main(int argc, char **argv)
 			match_product = file.idProduct;
 			printf("Match product ID from file: %04x\n", match_product);
 		}
+	} else if (mode == MODE_NONE && dfuse_options) {
+		/* for DfuSe special commands, match any device */
+		mode = MODE_DOWNLOAD;
+		file.idVendor = 0xffff;
+		file.idProduct = 0xffff;
 	}
 
 	if (wait_device) {
