@@ -431,6 +431,8 @@ probe:
 		} else {
 			errx(EX_IOERR, "No DFU capable USB device available");
 		}
+	} else if (file.bcdDFU == 0x11a && dfuse_multiple_alt(dfu_root)) {
+		printf("Multiple alternate interfaces for DfuSe file\n");
 	} else if (dfu_root->next != NULL) {
 		/* We cannot safely support more than one DFU capable device
 		 * with same vendor/product ID, since during DFU we need to do

@@ -43,7 +43,6 @@
 
 extern int verbose;
 static unsigned int last_erased_page = 1; /* non-aligned value, won't match */
-static struct memsegment *mem_layout;
 static unsigned int dfuse_address = 0;
 static unsigned int dfuse_address_present = 0;
 static unsigned int dfuse_length = 0;
@@ -192,7 +191,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		struct memsegment *segment;
 		int page_size;
 
-		segment = find_segment(mem_layout, address);
+		segment = find_segment(dif->mem_layout, address);
 		if (!segment || !(segment->memtype & DFUSE_ERASABLE)) {
 			errx(EX_USAGE, "Page at 0x%08x can not be erased",
 				address);
@@ -349,7 +348,7 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 	if (dfuse_length)
 		upload_limit = dfuse_length;
 	if (dfuse_address_present) {
-		struct memsegment *segment;
+		struct memsegment *mem_layout, *segment;
 
 		mem_layout = parse_memory_layout((char *)dif->alt_name);
 		if (!mem_layout)
@@ -439,7 +438,7 @@ static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddres
 
 	/* Check at least that we can write to the last address */
 	segment =
-	    find_segment(mem_layout, dwElementAddress + dwElementSize - 1);
+	    find_segment(dif->mem_layout, dwElementAddress + dwElementSize - 1);
 	if (!dfuse_force &&
             (!segment || !(segment->memtype & DFUSE_WRITEABLE))) {
 		errx(EX_USAGE, "Last page at 0x%08x is not writeable",
@@ -456,7 +455,7 @@ static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddres
 		unsigned int address = dwElementAddress + p;
 		int chunk_size = xfer_size;
 
-		segment = find_segment(mem_layout, address);
+		segment = find_segment(dif->mem_layout, address);
 		if (!dfuse_force &&
 		    (!segment || !(segment->memtype & DFUSE_WRITEABLE))) {
 			errx(EX_USAGE, "Page at 0x%08x is not writeable",
@@ -586,6 +585,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 	int element;
 	int bTargets;
 	int bAlternateSetting;
+	struct dfu_if *adif;
 	int dwNbElements;
 	unsigned int dwElementAddress;
 	unsigned int dwElementSize;
@@ -617,9 +617,6 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 	bTargets = dfuprefix[10];
 	printf("file contains %i DFU images\n", bTargets);
 
-	printf("Please note that the next version of dfu-util will automatically\n"
-	       "set alternate interfaces based on the DfuSe file images!\n");
-
 	for (image = 1; image <= bTargets; image++) {
 		printf("parsing DFU image %i\n", image);
 		dfuse_memcpy(targetprefix, &data, &rem, sizeof(targetprefix));
@@ -637,11 +634,29 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 		printf("(%i elements, ", dwNbElements);
 		printf("total size = %i)\n",
 		       quad2uint((unsigned char *)targetprefix + 266));
-		if (bAlternateSetting != dif->altsetting)
-			printf("Warning: Image does not match current alternate"
-			       " setting.\n"
-			       "Please rerun with the correct -a option setting"
-			       " to download this image!\n");
+
+		adif = dif;
+		while (adif) {
+			if (bAlternateSetting == adif->altsetting) {
+				adif->dev_handle = dif->dev_handle;
+				printf("Setting Alternate Setting #%d ...\n",
+				       adif->altsetting);
+				ret = libusb_set_interface_alt_setting(
+					  adif->dev_handle,
+					  adif->interface, adif->altsetting);
+				if (ret < 0) {
+					errx(EX_IOERR,
+					  "Cannot set alternate interface: %s",
+					  libusb_error_name(ret));
+				}
+				break;
+			}
+			adif = adif->next;
+		}
+		if (!adif)
+			warnx("No alternate setting %d (skipping elements)",
+			     bAlternateSetting);
+
 		for (element = 1; element <= dwNbElements; element++) {
 			printf("parsing element %i, ", element);
 			dfuse_memcpy(elementheader, &data, &rem, sizeof(elementheader));
@@ -660,12 +675,11 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 			if ((int)dwElementSize > rem)
 				errx(EX_DATAERR, "File too small for element size");
 
-			if (bAlternateSetting == dif->altsetting) {
-				ret = dfuse_dnload_element(dif, dwElementAddress,
-				    dwElementSize, data, xfer_size);
-			} else {
+			if (adif)
+				ret = dfuse_dnload_element(adif, dwElementAddress,
+							   dwElementSize, data, xfer_size);
+			else
 				ret = 0;
-			}
 
 			/* advance read pointer */
 			dfuse_memcpy(NULL, &data, &rem, dwElementSize);
@@ -687,14 +701,22 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		    const char *dfuse_options)
 {
 	int ret;
+	struct dfu_if *adif;
 
 	if (dfuse_options)
 		dfuse_parse_options(dfuse_options);
-	mem_layout = parse_memory_layout((char *)dif->alt_name);
-	if (!mem_layout)
-		errx(EX_IOERR, "Failed to parse memory layout");
-	if (dif->quirks & QUIRK_DFUSE_LAYOUT)
-		fixup_dfuse_layout(dif, &mem_layout);
+
+	adif = dif;
+	while (adif) {
+		adif->mem_layout = parse_memory_layout((char *)adif->alt_name);
+		if (!adif->mem_layout)
+			errx(EX_IOERR,
+			     "Failed to parse memory layout for alternate interface %i",
+			     adif->altsetting);
+		if (adif->quirks & QUIRK_DFUSE_LAYOUT)
+			fixup_dfuse_layout(adif, &(adif->mem_layout));
+		adif = adif->next;
+	}
 
 	if (dfuse_unprotect) {
 		if (!dfuse_force) {
@@ -731,7 +753,12 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		}
 		ret = dfuse_do_dfuse_dnload(dif, xfer_size, file);
 	}
-	free_segment_list(mem_layout);
+
+	adif = dif;
+	while (adif) {
+		free_segment_list(adif->mem_layout);
+		adif = adif->next;
+	}
 
 	if (!dfuse_will_reset) {
 		dfu_abort_to_idle(dif);
@@ -741,4 +768,22 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		dfuse_do_leave(dif);
 
 	return ret;
+}
+
+/* Check if we have one interface, possibly multiple alternate interfaces */
+int dfuse_multiple_alt(struct dfu_if *dfu_root)
+{
+	libusb_device *dev = dfu_root->dev;
+	uint8_t configuration = dfu_root->configuration;
+	uint8_t interface = dfu_root->interface;
+	struct dfu_if *dif = dfu_root->next;
+
+	while (dif) {
+		if (dev != dif->dev ||
+		    configuration != dif->configuration ||
+		    interface != dif->interface)
+			return 0;
+		dif = dif->next;
+	}
+	return 1;
 }

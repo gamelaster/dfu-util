@@ -29,5 +29,6 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 		    const char *dfuse_options);
 int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		    const char *dfuse_options);
+int dfuse_multiple_alt(struct dfu_if *dfu_root);
 
 #endif /* DFUSE_H */

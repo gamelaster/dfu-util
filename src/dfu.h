@@ -23,6 +23,7 @@
 
 #include <libusb.h>
 #include "usb_dfu.h"
+#include "dfuse_mem.h"
 
 /* DFU states */
 #define STATE_APP_IDLE                  0x00
@@ -102,6 +103,7 @@ struct dfu_if {
     libusb_device *dev;
     libusb_device_handle *dev_handle;
     struct dfu_if *next;
+    struct memsegment *mem_layout; /* for DfuSe */
 };
 
 int dfu_detach( libusb_device_handle *device,
