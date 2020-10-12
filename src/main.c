@@ -375,7 +375,7 @@ int main(int argc, char **argv)
 
 	if (verbose > 2) {
 #if defined(LIBUSB_API_VERSION) && LIBUSB_API_VERSION >= 0x01000106
-		libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, 255);
+		libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_DEBUG);
 #else
 		libusb_set_debug(ctx, 255);
 #endif
