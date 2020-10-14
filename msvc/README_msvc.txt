@@ -5,6 +5,6 @@
 Building dfu-util native on Windows with Visual Studio
 
 3rd party dependencies:
-- libusbx ( git clone https://github.com/libusbx/libusbx.git )
-  - getopt (part of libusbx: libusbx/examples/getopt)
+- libusb ( git clone https://github.com/libusb/libusb.git )
+  - getopt (part of libusb: libusb/examples/getopt)
 

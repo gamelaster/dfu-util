@@ -38,7 +38,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)..\..\libusbx\examples\getopt;$(SolutionDir)..\..\libusbx\libusb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\libusb\examples\getopt;$(SolutionDir)..\..\libusb\libusb;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)..\$(Platform)\getopt\$(Configuration);$(LibraryPath)</LibraryPath>
@@ -47,7 +47,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(SolutionDir)..\..\libusbx\examples\getopt;$(SolutionDir)..\..\libusbx\libusb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\libusb\examples\getopt;$(SolutionDir)..\..\libusb\libusb;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\$(Platform)\getopt\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
@@ -107,10 +107,10 @@
     <ClInclude Include="..\src\usb_dfu.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\libusbx\msvc\getopt_2010.vcxproj">
+    <ProjectReference Include="..\..\libusb\msvc\getopt_2010.vcxproj">
       <Project>{a2169bc8-cf99-40bf-83f3-b0e38f7067bd}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\libusbx\msvc\libusb_static_2010.vcxproj">
+    <ProjectReference Include="..\..\libusb\msvc\libusb_static_2010.vcxproj">
       <Project>{349ee8f9-7d25-4909-aaf5-ff3fade72187}</Project>
     </ProjectReference>
   </ItemGroup>

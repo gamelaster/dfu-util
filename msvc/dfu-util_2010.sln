@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dfu-suffix", "dfu-suffix_2010.vcxproj", "{8F7600A2-3B37-4956-B39B-A1D43EF29EDA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "getopt_2010", "..\..\libusbx\msvc\getopt_2010.vcxproj", "{AE83E1B4-CE06-47EE-B7A3-C3A1D7C2D71E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "getopt_2010", "..\..\libusb\msvc\getopt_2010.vcxproj", "{AE83E1B4-CE06-47EE-B7A3-C3A1D7C2D71E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libusb-1.0 (static)", "..\..\libusbx\msvc\libusb_static_2010.vcxproj", "{349EE8F9-7D25-4909-AAF5-FF3FADE72187}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libusb-1.0 (static)", "..\..\libusb\msvc\libusb_static_2010.vcxproj", "{349EE8F9-7D25-4909-AAF5-FF3FADE72187}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
