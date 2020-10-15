@@ -78,13 +78,13 @@ def checkbin(binfile):
     print("Please remove any DFU suffix and retry.")
     sys.exit(1)
 
-def build(file,targets,name=DEFAULT_NAME,device=DEFAULT_DEVICE):
+def build(file,targets,alt,name=DEFAULT_NAME,device=DEFAULT_DEVICE):
   data = b''
   for t,target in enumerate(targets):
     tdata = b''
     for image in target:
       tdata += struct.pack('<2I',image['address'],len(image['data']))+image['data']
-    tdata = struct.pack('<6sBI255s2I',b'Target',0,1,name,len(tdata),len(target)) + tdata
+    tdata = struct.pack('<6sBI255s2I',b'Target',alt,1,name,len(tdata),len(target)) + tdata
     data += tdata
   data  = struct.pack('<5sBIB',b'DfuSe',1,PREFIX_SIZE + len(data) + SUFFIX_SIZE,len(targets)) + data
   v,d=[int(x,0) & 0xFFFF for x in device.split(':',1)]
@@ -108,6 +108,8 @@ if __name__=="__main__":
     help="build a DFU file from given S19 S-record S19FILE", metavar="S19FILE")
   parser.add_option("-D", "--device", action="store", dest="device",
     help="build for DEVICE, defaults to %s" % DEFAULT_DEVICE, metavar="DEVICE")
+  parser.add_option("-a", "--alt-intf", action="store", dest="alt",
+    help="build for alternate interface number ALTINTF, defaults to 0", metavar="ALTINTF")
   parser.add_option("-d", "--dump", action="store_true", dest="dump_images",
     default=False, help="dump contained images to current directory")
   (options, args) = parser.parse_args()
@@ -115,6 +117,14 @@ if __name__=="__main__":
   if (options.binfiles or options.hexfiles) and len(args)==1:
     target = []
 
+    if options.alt:
+      try:
+         alt = int(options.alt)
+      except ValueError:
+         print("Alternate interface number %s invalid." % options.alt)
+         sys.exit(1)
+    else:
+         alt = 0
     if options.binfiles:
       for arg in options.binfiles:
         try:
@@ -156,7 +166,7 @@ if __name__=="__main__":
     except:
       print("Invalid device '%s'." % device)
       sys.exit(1)
-    build(outfile,[target],DEFAULT_NAME,device)
+    build(outfile,[target],alt,DEFAULT_NAME,device)
   elif options.s19files and len(args)==1:
     address = 0
     data = ""
@@ -209,7 +219,7 @@ if __name__=="__main__":
     except:
       print("Invalid device '%s'." % device)
       sys.exit(1)
-    build(outfile,[target],name,device)
+    build(outfile,[target],alt,name,device)
   elif len(args)==1:
     infile = args[0]
     if not os.path.isfile(infile):
