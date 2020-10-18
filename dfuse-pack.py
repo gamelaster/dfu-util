@@ -78,13 +78,14 @@ def checkbin(binfile):
     print("Please remove any DFU suffix and retry.")
     sys.exit(1)
 
-def build(file,targets,alt,name=DEFAULT_NAME,device=DEFAULT_DEVICE):
+def build(file,targets,name=DEFAULT_NAME,device=DEFAULT_DEVICE):
   data = b''
   for t,target in enumerate(targets):
     tdata = b''
     for image in target:
       tdata += struct.pack('<2I',image['address'],len(image['data']))+image['data']
-    tdata = struct.pack('<6sBI255s2I',b'Target',alt,1,name,len(tdata),len(target)) + tdata
+      ealt = image['alt']
+    tdata = struct.pack('<6sBI255s2I',b'Target',ealt,1,name,len(tdata),len(target)) + tdata
     data += tdata
   data  = struct.pack('<5sBIB',b'DfuSe',1,PREFIX_SIZE + len(data) + SUFFIX_SIZE,len(targets)) + data
   v,d=[int(x,0) & 0xFFFF for x in device.split(':',1)]
@@ -101,7 +102,7 @@ if __name__=="__main__":
 %prog {-i|--build-ihex} file.hex [-i file.hex ...] [{-D|--device}=vendor:device] outfile.dfu"""
   parser = OptionParser(usage=usage)
   parser.add_option("-b", "--build", action="append", dest="binfiles",
-    help="build a DFU file from given BINFILES. Note that the BINFILES must not have any DFU suffix!", metavar="BINFILES")
+    help="Include a raw binary file, to be loaded at the specified address. The BINFILES argument is of the form address:path-to-file. The address can have @X appended where X is the alternate interface number for this binary file. Note that the binary files must not have any DFU suffix!", metavar="BINFILES")
   parser.add_option("-i", "--build-ihex", action="append", dest="hexfiles",
     help="build a DFU file from given Intel HEX HEXFILES", metavar="HEXFILES")
   parser.add_option("-s", "--build-s19", type="string", dest="s19files",
@@ -114,6 +115,8 @@ if __name__=="__main__":
     default=False, help="dump contained images to current directory")
   (options, args) = parser.parse_args()
 
+  targets = []
+
   if options.alt:
     try:
       default_alt = int(options.alt)
@@ -125,6 +128,7 @@ if __name__=="__main__":
 
   if (options.binfiles or options.hexfiles) and len(args)==1:
     target = []
+    old_ealt = None
 
     if options.binfiles:
       for arg in options.binfiles:
@@ -134,6 +138,18 @@ if __name__=="__main__":
           print("Address:file couple '%s' invalid." % arg)
           sys.exit(1)
         try:
+          address,alts = address.split('@',1)
+          if alts:
+            try:
+              ealt = int(alts)
+            except ValueError:
+              print("Alternate interface number %s invalid." % alts)
+              sys.exit(1)
+          else:
+            ealt = default_alt
+        except ValueError:
+            ealt = default_alt
+        try:
           address = int(address,0) & 0xFFFFFFFF
         except ValueError:
           print("Address %s invalid." % address)
@@ -142,21 +158,27 @@ if __name__=="__main__":
           print("Unreadable file '%s'." % binfile)
           sys.exit(1)
         checkbin(binfile)
-        target.append({ 'address': address, 'data': open(binfile,'rb').read() })
+        if old_ealt and ealt != old_ealt:
+          targets.append(target)
+          target = []
+        target.append({ 'address': address, 'alt': ealt, 'data': open(binfile,'rb').read() })
+        old_ealt = ealt
+      targets.append(target)
 
     if options.hexfiles:
       if not IntelHex:
         print("Error: IntelHex python module could not be found")
         sys.exit(1)
-      for hex in options.hexfiles:
-        ih = IntelHex(hex)
+      for hexf in options.hexfiles:
+        ih = IntelHex(hexf)
         for (address,end) in ih.segments():
           try:
             address = address & 0xFFFFFFFF
           except ValueError:
             print("Address %s invalid." % address)
             sys.exit(1)
-          target.append({ 'address': address, 'data': ih.tobinstr(start=address, end=end-1)})
+          target.append({ 'address': address, 'alt': default_alt, 'data': ih.tobinstr(start=address, end=end-1)})
+      targets.append(target)
 
     outfile = args[0]
     device = DEFAULT_DEVICE
@@ -167,7 +189,7 @@ if __name__=="__main__":
     except:
       print("Invalid device '%s'." % device)
       sys.exit(1)
-    build(outfile,[target],default_alt,DEFAULT_NAME,device)
+    build(outfile,targets,DEFAULT_NAME,device)
   elif options.s19files and len(args)==1:
     address = 0
     data = ""
@@ -206,7 +228,7 @@ if __name__=="__main__":
               address = curaddress
               data = curdata
           elif address + len(data) != curaddress:
-              target.append({ 'address': address, 'data': data })
+              target.append({ 'address': address, 'alt': default_alt, 'data': data })
               address = curaddress
               data = curdata
           else:
@@ -220,7 +242,7 @@ if __name__=="__main__":
     except:
       print("Invalid device '%s'." % device)
       sys.exit(1)
-    build(outfile,[target],default_alt,name,device)
+    build(outfile,[target],name,device)
   elif len(args)==1:
     infile = args[0]
     if not os.path.isfile(infile):
