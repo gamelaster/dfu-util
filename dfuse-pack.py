@@ -114,17 +114,18 @@ if __name__=="__main__":
     default=False, help="dump contained images to current directory")
   (options, args) = parser.parse_args()
 
+  if options.alt:
+    try:
+      default_alt = int(options.alt)
+    except ValueError:
+      print("Alternate interface option argument %s invalid." % options.alt)
+      sys.exit(1)
+  else:
+    default_alt = 0
+
   if (options.binfiles or options.hexfiles) and len(args)==1:
     target = []
 
-    if options.alt:
-      try:
-         alt = int(options.alt)
-      except ValueError:
-         print("Alternate interface number %s invalid." % options.alt)
-         sys.exit(1)
-    else:
-         alt = 0
     if options.binfiles:
       for arg in options.binfiles:
         try:
@@ -166,7 +167,7 @@ if __name__=="__main__":
     except:
       print("Invalid device '%s'." % device)
       sys.exit(1)
-    build(outfile,[target],alt,DEFAULT_NAME,device)
+    build(outfile,[target],default_alt,DEFAULT_NAME,device)
   elif options.s19files and len(args)==1:
     address = 0
     data = ""
@@ -219,7 +220,7 @@ if __name__=="__main__":
     except:
       print("Invalid device '%s'." % device)
       sys.exit(1)
-    build(outfile,[target],alt,name,device)
+    build(outfile,[target],default_alt,name,device)
   elif len(args)==1:
     infile = args[0]
     if not os.path.isfile(infile):
