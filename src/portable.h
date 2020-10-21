@@ -10,6 +10,10 @@
 # define PACKAGE_STRING "dfu-util 0.9-msvc"
 # define PACKAGE_BUGREPORT "http://sourceforge.net/p/dfu-util/tickets/"
 # include <io.h>
+/* FIXME if off_t is a typedef it is not a define */
+# ifndef off_t
+#  define off_t long int
+# endif
 #endif /* HAVE_CONFIG_H */
 
 #ifdef HAVE_UNISTD_H
@@ -62,10 +66,6 @@
 
 #ifndef O_BINARY
 # define O_BINARY   0
-#endif
-
-#ifndef off_t
-# define off_t long int
 #endif
 
 #endif /* PORTABLE_H */
