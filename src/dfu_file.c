@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 #define __USE_MINGW_ANSI_STDIO 1
 #include <stdio.h>
 #include <string.h>
@@ -27,6 +30,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <fcntl.h>
+#include <limits.h>
 
 #include "portable.h"
 #include "dfu_file.h"
@@ -236,17 +240,27 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 			err(EX_IOERR, "Could not seek to beginning");
 
 		file->size.total = offset;
+
+		if (file->size.total > SSIZE_MAX) {
+			err(EX_IOERR, "File too large for memory allocation on this platform");
+		}
 		file->firmware = dfu_malloc(file->size.total);
 
 		while (read_total < file->size.total) {
-			read_count = read(f, file->firmware + read_total, file->size.total - read_total);
+			off_t to_read = file->size.total - read_total;
+			/* read() limit on Linux, slightly below MAX_INT on Windows */
+			if (to_read > 0x7ffff000)
+				to_read = 0x7ffff000;
+			read_count = read(f, file->firmware + read_total, to_read);
 			if (read_count == 0)
+				break;
+			if (read_count == -1 && errno != EINTR)
 				break;
 			read_total += read_count;
 		}
 		if (read_total != file->size.total) {
-			err(EX_IOERR, "Could not read %ld bytes from %s",
-			    file->size.total, file->name);
+			err(EX_IOERR, "Could only read %lld of %lld bytes from %s",
+			    (long long) read_total, (long long) file->size.total, file->name);
 		}
 		close(f);
 	}

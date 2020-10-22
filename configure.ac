@@ -36,5 +36,8 @@ AC_TYPE_SIZE_T
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([getpagesize nanosleep err])
 
+# Checks how to do large files
+AC_SYS_LARGEFILE
+
 AC_CONFIG_FILES(Makefile src/Makefile doc/Makefile)
 AC_OUTPUT
