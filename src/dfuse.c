@@ -200,7 +200,7 @@ int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		length = 5;
 		last_erased_page = address & ~(page_size - 1);
 	} else if (command == SET_ADDRESS) {
-		if (verbose > 2)
+		if (verbose > 1)
 			fprintf(stderr, "  Setting address pointer to 0x%08x\n",
 			       address);
 		buf[0] = 0x21;	/* Set Address Pointer command */
@@ -459,7 +459,7 @@ int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddress,
 
 			if (((address + chunk_size - 1) & ~(page_size - 1)) !=
 			    last_erased_page) {
-				if (verbose > 2)
+				if (verbose > 1)
 					fprintf(stderr, " Chunk extends into next page,"
 					       " erase it as well\n");
 				dfuse_special_command(dif,
