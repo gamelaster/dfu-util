@@ -352,8 +352,10 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 	} else {
 		/* Boot loader decides the start address, unknown to us */
 		/* Use a short length to lower risk of running out of bounds */
-		if (!upload_limit)
+		if (!upload_limit) {
+			warnx("Unbound upload not supported on DfuSe devices");
 			upload_limit = 0x4000;
+		}
 		printf("Limiting default upload to %i bytes\n", upload_limit);
 	}
 
