@@ -75,6 +75,7 @@ static struct option opts[] = {
 	{ "stellaris-address", 1, 0, 's' },
 	{ "stellaris", 0, 0, 'T' },
 	{ "LPC", 0, 0, 'L' },
+	{ 0, 0, 0, 0 }
 };
 int main(int argc, char **argv)
 {

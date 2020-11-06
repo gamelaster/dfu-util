@@ -73,6 +73,7 @@ static struct option opts[] = {
 	{ "vid", 1, 0, 'v' },
 	{ "did", 1, 0, 'd' },
 	{ "spec", 1, 0, 'S' },
+	{ 0, 0, 0, 0 }
 };
 
 int main(int argc, char **argv)
