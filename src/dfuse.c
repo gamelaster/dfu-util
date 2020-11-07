@@ -49,12 +49,12 @@ static int dfuse_unprotect = 0;
 static int dfuse_mass_erase = 0;
 static int dfuse_will_reset = 0;
 
-unsigned int quad2uint(unsigned char *p)
+static unsigned int quad2uint(unsigned char *p)
 {
 	return (*p + (*(p + 1) << 8) + (*(p + 2) << 16) + (*(p + 3) << 24));
 }
 
-void dfuse_parse_options(const char *options)
+static void dfuse_parse_options(const char *options)
 {
 	char *end;
 	const char *endword;
@@ -123,7 +123,7 @@ void dfuse_parse_options(const char *options)
 }
 
 /* DFU_UPLOAD request for DfuSe 1.1a */
-int dfuse_upload(struct dfu_if *dif, const unsigned short length,
+static int dfuse_upload(struct dfu_if *dif, const unsigned short length,
 		 unsigned char *data, unsigned short transaction)
 {
 	int status;
@@ -146,7 +146,7 @@ int dfuse_upload(struct dfu_if *dif, const unsigned short length,
 }
 
 /* DFU_DNLOAD request for DfuSe 1.1a */
-int dfuse_download(struct dfu_if *dif, const unsigned short length,
+static int dfuse_download(struct dfu_if *dif, const unsigned short length,
 		   unsigned char *data, unsigned short transaction)
 {
 	int status;
@@ -170,7 +170,7 @@ int dfuse_download(struct dfu_if *dif, const unsigned short length,
 
 /* DfuSe only commands */
 /* Leaves the device in dfuDNLOAD-IDLE state */
-int dfuse_special_command(struct dfu_if *dif, unsigned int address,
+static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 			  enum dfuse_command command)
 {
 	const char* dfuse_command_name[] = { "SET_ADDRESS" , "ERASE_PAGE",
@@ -267,7 +267,7 @@ int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 	return ret;
 }
 
-int dfuse_dnload_chunk(struct dfu_if *dif, unsigned char *data, int size,
+static int dfuse_dnload_chunk(struct dfu_if *dif, unsigned char *data, int size,
 		       int transaction)
 {
 	int bytes_sent;
@@ -401,7 +401,7 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 
 /* Writes an element of any size to the device, taking care of page erases */
 /* returns 0 on success, otherwise -EINVAL */
-int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddress,
+static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddress,
 			 unsigned int dwElementSize, unsigned char *data,
 			 int xfer_size)
 {
@@ -517,7 +517,7 @@ dfuse_memcpy(unsigned char *dst, unsigned char **src, int *rem, int size)
 }
 
 /* Download raw binary file to DfuSe device */
-int dfuse_do_bin_dnload(struct dfu_if *dif, int xfer_size,
+static int dfuse_do_bin_dnload(struct dfu_if *dif, int xfer_size,
 			struct dfu_file *file, unsigned int start_address)
 {
 	unsigned int dwElementAddress;
@@ -547,7 +547,7 @@ int dfuse_do_bin_dnload(struct dfu_if *dif, int xfer_size,
 }
 
 /* Parse a DfuSe file and download contents to device */
-int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
+static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 			  struct dfu_file *file)
 {
 	uint8_t dfuprefix[11];
