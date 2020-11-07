@@ -139,8 +139,8 @@ static int dfuse_upload(struct dfu_if *dif, const unsigned short length,
 		 /* wLength       */	 length,
 					 DFU_TIMEOUT);
 	if (status < 0) {
-		errx(EX_IOERR, "%s: libusb_control_transfer returned %d (%s)",
-			__FUNCTION__, status, libusb_error_name(status));
+		warnx("dfuse_upload: libusb_control_transfer returned %d (%s)",
+		      status, libusb_error_name(status));
 	}
 	return status;
 }
@@ -162,8 +162,8 @@ static int dfuse_download(struct dfu_if *dif, const unsigned short length,
 		 /* wLength       */	 length,
 					 DFU_TIMEOUT);
 	if (status < 0) {
-		errx(EX_IOERR, "%s: libusb_control_transfer returned %d (%s)",
-			__FUNCTION__, status, libusb_error_name(status));
+		warnx("dfuse_download: libusb_control_transfer returned %d (%s)",
+		      status, libusb_error_name(status));
 	}
 	return status;
 }
