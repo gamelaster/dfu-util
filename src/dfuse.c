@@ -71,7 +71,7 @@ static void dfuse_parse_options(const char *options)
 			dfuse_address = number;
 			dfuse_address_present = 1;
 		} else {
-			errx(EX_IOERR, "Invalid dfuse address: %s", options);
+			errx(EX_USAGE, "Invalid dfuse address: %s", options);
 		}
 		options = endword;
 	}
@@ -116,7 +116,7 @@ static void dfuse_parse_options(const char *options)
 		if (end == endword) {
 			dfuse_length = number;
 		} else {
-			errx(EX_IOERR, "Invalid dfuse modifier: %s", options);
+			errx(EX_USAGE, "Invalid dfuse modifier: %s", options);
 		}
 		options = endword;
 	}
@@ -190,7 +190,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 
 		segment = find_segment(mem_layout, address);
 		if (!segment || !(segment->memtype & DFUSE_ERASABLE)) {
-			errx(EX_IOERR, "Page at 0x%08x can not be erased",
+			errx(EX_USAGE, "Page at 0x%08x can not be erased",
 				address);
 		}
 		page_size = segment->pagesize;
@@ -214,7 +214,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		buf[0] = 0x92;
 		length = 1;
 	} else {
-		errx(EX_IOERR, "Non-supported special command %d", command);
+		errx(EX_SOFTWARE, "Non-supported special command %d", command);
 	}
 	buf[1] = address & 0xff;
 	buf[2] = (address >> 8) & 0xff;
@@ -247,7 +247,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 				fprintf(stderr, "state(%u) = %s, status(%u) = %s\n", dst.bState,
 				       dfu_state_to_string(dst.bState), dst.bStatus,
 				       dfu_status_to_string(dst.bStatus));
-				errx(EX_IOERR, "Wrong state after command \"%s\" download",
+				errx(EX_PROTOCOL, "Wrong state after command \"%s\" download",
 				     dfuse_command_name[command]);
 			}
 			/* STM32F405 lies about mass erase timeout */
@@ -344,7 +344,7 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 		segment = find_segment(mem_layout, dfuse_address);
 		if (!dfuse_force &&
 		    (!segment || !(segment->memtype & DFUSE_READABLE)))
-			errx(EX_IOERR, "Page at 0x%08x is not readable",
+			errx(EX_USAGE, "Page at 0x%08x is not readable",
 				dfuse_address);
 
 		if (!upload_limit) {
@@ -429,7 +429,7 @@ static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddres
 	    find_segment(mem_layout, dwElementAddress + dwElementSize - 1);
 	if (!dfuse_force &&
             (!segment || !(segment->memtype & DFUSE_WRITEABLE))) {
-		errx(EX_IOERR, "Last page at 0x%08x is not writeable",
+		errx(EX_USAGE, "Last page at 0x%08x is not writeable",
 			dwElementAddress + dwElementSize - 1);
 	}
 
@@ -446,7 +446,7 @@ static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddres
 		segment = find_segment(mem_layout, address);
 		if (!dfuse_force &&
 		    (!segment || !(segment->memtype & DFUSE_WRITEABLE))) {
-			errx(EX_IOERR, "Page at 0x%08x is not writeable",
+			errx(EX_USAGE, "Page at 0x%08x is not writeable",
 				address);
 		}
 		/* If the location is not in the memory map we skip erasing */
@@ -527,7 +527,7 @@ static void
 dfuse_memcpy(unsigned char *dst, unsigned char **src, int *rem, int size)
 {
 	if (size > *rem) {
-		errx(EX_IOERR, "Corrupt DfuSe file: "
+		errx(EX_NOINPUT, "Corrupt DfuSe file: "
 		    "Cannot read %d bytes from %d bytes", size, *rem);
 	}
 	if (dst != NULL)
@@ -591,17 +591,17 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
         /* Must be larger than a minimal DfuSe header and suffix */
 	if (rem < (int)(sizeof(dfuprefix) +
 	    sizeof(targetprefix) + sizeof(elementheader))) {
-		errx(EX_SOFTWARE, "File too small for a DfuSe file");
+		errx(EX_DATAERR, "File too small for a DfuSe file");
         }
 
 	dfuse_memcpy(dfuprefix, &data, &rem, sizeof(dfuprefix));
 
 	if (strncmp((char *)dfuprefix, "DfuSe", 5)) {
-		errx(EX_IOERR, "No valid DfuSe signature");
+		errx(EX_DATAERR, "No valid DfuSe signature");
 		return -EINVAL;
 	}
 	if (dfuprefix[5] != 0x01) {
-		errx(EX_IOERR, "DFU format revision %i not supported",
+		errx(EX_DATAERR, "DFU format revision %i not supported",
 			dfuprefix[5]);
 		return -EINVAL;
 	}
@@ -615,7 +615,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 		printf("parsing DFU image %i\n", image);
 		dfuse_memcpy(targetprefix, &data, &rem, sizeof(targetprefix));
 		if (strncmp((char *)targetprefix, "Target", 6)) {
-			errx(EX_IOERR, "No valid target signature");
+			errx(EX_DATAERR, "No valid target signature");
 			return -EINVAL;
 		}
 		bAlternateSetting = targetprefix[6];
@@ -649,7 +649,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 			}
 			/* sanity check */
 			if ((int)dwElementSize > rem)
-				errx(EX_SOFTWARE, "File too small for element size");
+				errx(EX_DATAERR, "File too small for element size");
 
 			if (bAlternateSetting == dif->altsetting) {
 				ret = dfuse_dnload_element(dif, dwElementAddress,
@@ -689,17 +689,17 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 
 	if (dfuse_unprotect) {
 		if (!dfuse_force) {
-			errx(EX_IOERR, "The read unprotect command "
+			errx(EX_USAGE, "The read unprotect command "
 				"will erase the flash memory"
 				"and can only be used with force\n");
 		}
 		dfuse_special_command(dif, 0, READ_UNPROTECT);
 		printf("Device disconnects, erases flash and resets now\n");
-		exit(0);
+		exit(EX_OK);
 	}
 	if (dfuse_mass_erase) {
 		if (!dfuse_force) {
-			errx(EX_IOERR, "The mass erase command "
+			errx(EX_USAGE, "The mass erase command "
 				"can only be used with force");
 		}
 		printf("Performing mass erase, this can take a moment\n");
@@ -710,14 +710,14 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		ret = 0;
 	} else if (dfuse_address_present) {
 		if (file->bcdDFU == 0x11a) {
-			errx(EX_IOERR, "This is a DfuSe file, not "
+			errx(EX_USAGE, "This is a DfuSe file, not "
 				"meant for raw download");
 		}
 		ret = dfuse_do_bin_dnload(dif, xfer_size, file, dfuse_address);
 	} else {
 		if (file->bcdDFU != 0x11a) {
 			warnx("Only DfuSe file version 1.1a is supported");
-			errx(EX_IOERR, "(for raw binary download, use the "
+			errx(EX_USAGE, "(for raw binary download, use the "
 			     "--dfuse-address option)");
 		}
 		ret = dfuse_do_dfuse_dnload(dif, xfer_size, file);

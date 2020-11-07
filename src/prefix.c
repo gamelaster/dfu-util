@@ -55,7 +55,6 @@ static void help(void)
 		"In combination with -a or -D or -c:\n"
 		"  -L --lpc-prefix\t\tUse NXP LPC DFU prefix format\n"
 		);
-	exit(EX_USAGE);
 }
 
 static void print_version(void)
@@ -103,9 +102,10 @@ int main(int argc, char **argv)
 		switch (c) {
 		case 'h':
 			help();
+			exit(EX_OK);
 			break;
 		case 'V':
-			exit(0);
+			exit(EX_OK);
 			break;
 		case 'D':
 			file.name = optarg;
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 		case 's':
 			lmdfu_flash_address = strtoul(optarg, &end, 0);
 			if (*end) {
-				errx(EX_IOERR, "Invalid lmdfu "
+				errx(EX_USAGE, "Invalid lmdfu "
 					"address: %s", optarg);
 			}
 			/* fall-through */
@@ -134,6 +134,7 @@ int main(int argc, char **argv)
 			break;
 		default:
 			help();
+			exit(EX_USAGE);
 			break;
 		}
 	}
@@ -141,12 +142,13 @@ int main(int argc, char **argv)
 	if (!file.name) {
 		fprintf(stderr, "You need to specify a filename\n");
 		help();
+		exit(EX_USAGE);
 	}
 
 	switch(mode) {
 	case MODE_ADD:
 		if (type == ZERO_PREFIX)
-			errx(EX_IOERR, "Prefix type must be specified");
+			errx(EX_USAGE, "Prefix type must be specified");
 		dfu_load_file(&file, MAYBE_SUFFIX, NO_PREFIX);
 		file.lmdfu_address = lmdfu_flash_address;
 		file.prefix_type = type;
@@ -158,13 +160,13 @@ int main(int argc, char **argv)
 		dfu_load_file(&file, MAYBE_SUFFIX, MAYBE_PREFIX);
 		show_suffix_and_prefix(&file);
 		if (type > ZERO_PREFIX && file.prefix_type != type)
-			errx(EX_IOERR, "No prefix of requested type");
+			errx(EX_DATAERR, "No prefix of requested type");
 		break;
 
 	case MODE_DEL:
 		dfu_load_file(&file, MAYBE_SUFFIX, NEEDS_PREFIX);
 		if (type > ZERO_PREFIX && file.prefix_type != type)
-			errx(EX_IOERR, "No prefix of requested type");
+			errx(EX_DATAERR, "No prefix of requested type");
 		printf("Removing prefix from file\n");
 		/* if there was a suffix, rewrite it */
 		dfu_store_file(&file, file.size.suffix != 0, 0);
@@ -172,7 +174,8 @@ int main(int argc, char **argv)
 
 	default:
 		help();
+		exit(EX_USAGE);
 		break;
 	}
-	return (0);
+	return EX_OK;
 }

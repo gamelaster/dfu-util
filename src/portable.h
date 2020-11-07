@@ -60,8 +60,12 @@
 #else
 # define EX_OK		0	/* successful termination */
 # define EX_USAGE	64	/* command line usage error */
+# define EX_DATAERR	65
+# define EX_NOINPUT	66
 # define EX_SOFTWARE	70	/* internal software error */
+# define EX_CANTCREAT	73	/* input/output error */
 # define EX_IOERR	74	/* input/output error */
+# define EX_PROTOCOL	76	/* input/output error */
 #endif /* HAVE_SYSEXITS_H */
 
 #ifndef O_BINARY

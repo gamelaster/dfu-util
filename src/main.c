@@ -149,11 +149,11 @@ static int parse_number(char *str, char *nmb)
 
 	if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
 		|| (errno != 0 && val == 0) || (*endptr != '\0')) {
-		errx(EX_SOFTWARE, "Something went wrong with the argument of --%s\n", str);
+		errx(EX_USAGE, "Something went wrong with the argument of --%s\n", str);
 	}
 
 	if (endptr == nmb) {
-		errx(EX_SOFTWARE, "No digits were found from the argument of --%s\n", str);
+		errx(EX_USAGE, "No digits were found from the argument of --%s\n", str);
 	}
 
 	return (int)val;
@@ -195,7 +195,6 @@ static void help(void)
 		"\t\tforce\t\tYou really know what you are doing!\n"
 		"\t\t<length>\tLength of firmware to upload from device\n"
 		);
-	exit(EX_USAGE);
 }
 
 static void print_version(void)
@@ -268,6 +267,7 @@ int main(int argc, char **argv)
 		switch (c) {
 		case 'h':
 			help();
+			exit(EX_OK);
 			break;
 		case 'V':
 			mode = MODE_VERSION;
@@ -341,17 +341,19 @@ int main(int argc, char **argv)
 			break;
 		default:
 			help();
+			exit(EX_USAGE);
 			break;
 		}
 	}
 	if (optind != argc) {
 		fprintf(stderr, "Error: Unexpected argument: %s\n\n", argv[optind]);
 		help();
+		exit(EX_USAGE);
 	}
 
 	print_version();
 	if (mode == MODE_VERSION) {
-		exit(0);
+		exit(EX_OK);
 	}
 
 #if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
@@ -368,6 +370,7 @@ int main(int argc, char **argv)
 	if (mode == MODE_NONE && !dfuse_options) {
 		fprintf(stderr, "You need to specify one of -D or -U\n");
 		help();
+		exit(EX_USAGE);
 	}
 
 	if (match_config_index == 0) {
@@ -414,7 +417,7 @@ probe:
 
 	if (mode == MODE_LIST) {
 		list_dfu_interfaces();
-		exit(0);
+		exit(EX_OK);
 	}
 
 	if (dfu_root == NULL) {
@@ -525,7 +528,7 @@ probe:
 
 		if (mode == MODE_DETACH) {
 			libusb_exit(ctx);
-			exit(0);
+			exit(EX_OK);
 		}
 
 		/* keeping handles open might prevent re-enumeration */
@@ -549,7 +552,7 @@ probe:
 
 		/* Check for DFU mode device */
 		if (!(dfu_root->flags | DFU_IFF_DFU))
-			errx(EX_SOFTWARE, "Device is not in DFU mode");
+			errx(EX_PROTOCOL, "Device is not in DFU mode");
 
 		printf("Opening DFU USB Device...\n");
 		ret = libusb_open(dfu_root->dev, &dfu_root->dev_handle);
@@ -599,7 +602,7 @@ status_again:
 	switch (status.bState) {
 	case DFU_STATE_appIDLE:
 	case DFU_STATE_appDETACH:
-		errx(EX_IOERR, "Device still in Runtime Mode!");
+		errx(EX_PROTOCOL, "Device still in Runtime Mode!");
 		break;
 	case DFU_STATE_dfuERROR:
 		printf("dfuERROR, clearing status\n");
@@ -632,7 +635,7 @@ status_again:
 		if (dfu_get_status(dfu_root, &status) < 0)
 			errx(EX_IOERR, "USB communication error");
 		if (DFU_STATUS_OK != status.bStatus)
-			errx(EX_SOFTWARE, "Status is not OK: %d", status.bStatus);
+			errx(EX_PROTOCOL, "Status is not OK: %d", status.bStatus);
 
 		milli_sleep(status.bwPollTimeout);
 	}
@@ -655,7 +658,7 @@ status_again:
 			printf("Warning: Overriding device-reported transfer size\n");
 	} else {
 		if (!transfer_size)
-			errx(EX_IOERR, "Transfer size must be specified");
+			errx(EX_USAGE, "Transfer size must be specified");
 	}
 
 #ifdef HAVE_GETPAGESIZE
@@ -679,7 +682,7 @@ status_again:
 		/* open for "exclusive" writing */
 		fd = open(file.name, O_WRONLY | O_BINARY | O_CREAT | O_EXCL | O_TRUNC, 0666);
 		if (fd < 0)
-			err(EX_IOERR, "Cannot open file %s for writing", file.name);
+			err(EX_CANTCREAT, "Cannot open file %s for writing", file.name);
 
 		if (dfuse_device || dfuse_options) {
 		    if (dfuse_do_upload(dfu_root, transfer_size, fd,
@@ -699,7 +702,7 @@ status_again:
 		     (file.idProduct != 0xffff && file.idProduct != runtime_product)) &&
 		    ((file.idVendor  != 0xffff && file.idVendor  != dfu_root->vendor) ||
 		     (file.idProduct != 0xffff && file.idProduct != dfu_root->product))) {
-			errx(EX_IOERR, "Error: File ID %04x:%04x does "
+			errx(EX_USAGE, "Error: File ID %04x:%04x does "
 				"not match device (%04x:%04x or %04x:%04x)",
 				file.idVendor, file.idProduct,
 				runtime_vendor, runtime_product,
@@ -720,7 +723,7 @@ status_again:
 		}
 		break;
 	default:
-		errx(EX_IOERR, "Unsupported mode: %u", mode);
+		errx(EX_SOFTWARE, "Unsupported mode: %u", mode);
 		break;
 	}
 

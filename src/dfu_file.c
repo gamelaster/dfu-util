@@ -215,7 +215,7 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 		while (read_bytes == STDIN_CHUNK_SIZE) {
 			file->firmware = (uint8_t*) realloc(file->firmware, file->size.total + STDIN_CHUNK_SIZE);
 			if (!file->firmware)
-				err(EX_IOERR, "Could not allocate firmware buffer");
+				err(EX_SOFTWARE, "Could not allocate firmware buffer");
 			read_bytes = fread(file->firmware + file->size.total, 1, STDIN_CHUNK_SIZE, stdin);
 			file->size.total += read_bytes;
 		}
@@ -229,12 +229,12 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 
 		f = open(file->name, O_RDONLY | O_BINARY);
 		if (f < 0)
-			err(EX_IOERR, "Could not open file %s for reading", file->name);
+			err(EX_NOINPUT, "Could not open file %s for reading", file->name);
 
 		offset = lseek(f, 0, SEEK_END);
 
 		if (offset < 0)
-			err(EX_IOERR, "File size is too big");
+			err(EX_SOFTWARE, "File size is too big");
 
 		if (lseek(f, 0, SEEK_SET) != 0)
 			err(EX_IOERR, "Could not seek to beginning");
@@ -242,7 +242,7 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 		file->size.total = offset;
 
 		if (file->size.total > SSIZE_MAX) {
-			err(EX_IOERR, "File too large for memory allocation on this platform");
+			err(EX_SOFTWARE, "File too large for memory allocation on this platform");
 		}
 		file->firmware = dfu_malloc(file->size.total);
 
@@ -314,12 +314,12 @@ void dfu_load_file(struct dfu_file *file, enum suffix_req check_suffix, enum pre
 		file->size.suffix = dfusuffix[11];
 
 		if (file->size.suffix < DFU_SUFFIX_LENGTH) {
-			errx(EX_IOERR, "Unsupported DFU suffix length %d",
+			errx(EX_DATAERR, "Unsupported DFU suffix length %d",
 			    file->size.suffix);
 		}
 
 		if (file->size.suffix > file->size.total) {
-			errx(EX_IOERR, "Invalid DFU suffix length %d",
+			errx(EX_DATAERR, "Invalid DFU suffix length %d",
 			    file->size.suffix);
 		}
 
@@ -331,7 +331,7 @@ checked:
 		if (missing_suffix) {
 			if (check_suffix == NEEDS_SUFFIX) {
 				warnx("%s", reason);
-				errx(EX_IOERR, "Valid DFU suffix needed");
+				errx(EX_DATAERR, "Valid DFU suffix needed");
 			} else if (check_suffix == MAYBE_SUFFIX) {
 				warnx("Warning: %s", reason);
 				warnx("A valid DFU suffix will be required in "
@@ -339,15 +339,15 @@ checked:
 			}
 		} else {
 			if (check_suffix == NO_SUFFIX) {
-				errx(EX_SOFTWARE, "Please remove existing DFU suffix before adding a new one.\n");
+				errx(EX_DATAERR, "Please remove existing DFU suffix before adding a new one.\n");
 			}
 		}
 	}
 	res = probe_prefix(file);
 	if ((res || file->size.prefix == 0) && check_prefix == NEEDS_PREFIX)
-		errx(EX_IOERR, "Valid DFU prefix needed");
+		errx(EX_DATAERR, "Valid DFU prefix needed");
 	if (file->size.prefix && check_prefix == NO_PREFIX)
-		errx(EX_IOERR, "A prefix already exists, please delete it first");
+		errx(EX_DATAERR, "A prefix already exists, please delete it first");
 	if (file->size.prefix && verbose) {
 		uint8_t *data = file->firmware;
 		if (file->prefix_type == LMDFU_PREFIX)
@@ -364,7 +364,7 @@ checked:
 				   "Payload length: %d kiByte\n",
 				   data[2] >>1 | (data[3] << 7) );
 		else
-			errx(EX_IOERR, "Unknown DFU prefix type");
+			errx(EX_DATAERR, "Unknown DFU prefix type");
 	}
 }
 
@@ -375,7 +375,7 @@ void dfu_store_file(struct dfu_file *file, int write_suffix, int write_prefix)
 
 	f = open(file->name, O_WRONLY | O_BINARY | O_TRUNC | O_CREAT, 0666);
 	if (f < 0)
-		err(EX_IOERR, "Could not open file %s for writing", file->name);
+		err(EX_CANTCREAT, "Could not open file %s for writing", file->name);
 
 	/* write prefix, if any */
 	if (write_prefix) {

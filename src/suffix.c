@@ -51,7 +51,6 @@ static void help(void)
 		"  -d --did <deviceID>\t\tAdd device ID into DFU suffix in <file>\n"
 		"  -S --spec <specID>\t\tAdd DFU specification ID into DFU suffix in <file>\n"
 		);
-	exit(EX_USAGE);
 }
 
 static void print_version(void)
@@ -101,9 +100,10 @@ int main(int argc, char **argv)
 		switch (c) {
 		case 'h':
 			help();
+			exit(EX_OK);
 			break;
 		case 'V':
-			exit(0);
+			exit(EX_OK);
 			break;
 		case 'D':
 			file.name = optarg;
@@ -131,6 +131,7 @@ int main(int argc, char **argv)
 			break;
 		default:
 			help();
+			exit(EX_USAGE);
 			break;
 		}
 	}
@@ -138,11 +139,13 @@ int main(int argc, char **argv)
 	if (!file.name) {
 		fprintf(stderr, "You need to specify a filename\n");
 		help();
+		exit(EX_USAGE);
 	}
 
 	if (spec != 0x0100 && spec != 0x011a) {
 		fprintf(stderr, "Only DFU specification 0x0100 and 0x011a supported\n");
 		help();
+		exit(EX_USAGE);
 	}
 
 	switch(mode) {
@@ -171,7 +174,8 @@ int main(int argc, char **argv)
 
 	default:
 		help();
+		exit(EX_USAGE);
 		break;
 	}
-	return (0);
+	return EX_OK;
 }
