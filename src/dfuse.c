@@ -278,6 +278,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 	return ret;
 }
 
+/* returns number of bytes sent */
 static int dfuse_dnload_chunk(struct dfu_if *dif, unsigned char *data, int size,
 		       int transaction)
 {
@@ -393,7 +394,7 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 
 		if (rc < xfer_size || total_bytes >= upload_limit) {
 			/* last block, return successfully */
-			ret = total_bytes;
+			ret = 0;
 			break;
 		}
 		dfu_progress_bar("Upload", total_bytes, upload_limit);
@@ -556,13 +557,9 @@ static int dfuse_do_bin_dnload(struct dfu_if *dif, int xfer_size,
 
 	ret = dfuse_dnload_element(dif, dwElementAddress, dwElementSize, data,
 				   xfer_size);
-	if (ret != 0)
-		goto out_free;
+	if (ret == 0)
+		printf("File downloaded successfully\n");
 
-	printf("File downloaded successfully\n");
-	ret = dwElementSize;
-
- out_free:
 	return ret;
 }
 
