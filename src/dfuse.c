@@ -690,9 +690,9 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 				"will erase the flash memory"
 				"and can only be used with force\n");
 		}
-		dfuse_special_command(dif, 0, READ_UNPROTECT);
+		ret = dfuse_special_command(dif, 0, READ_UNPROTECT);
 		printf("Device disconnects, erases flash and resets now\n");
-		exit(EX_OK);
+		return ret;
 	}
 	if (dfuse_mass_erase) {
 		if (!dfuse_force) {
@@ -700,7 +700,7 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 				"can only be used with force");
 		}
 		printf("Performing mass erase, this can take a moment\n");
-		dfuse_special_command(dif, 0, MASS_ERASE);
+		ret = dfuse_special_command(dif, 0, MASS_ERASE);
 	}
 	if (!file->name) {
 		printf("DfuSe command mode\n");
