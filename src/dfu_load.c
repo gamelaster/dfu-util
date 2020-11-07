@@ -93,7 +93,7 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 	return ret;
 }
 
-off_t dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
+int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 {
 	off_t bytes_sent;
 	off_t expected_size;
@@ -209,5 +209,5 @@ get_status:
 	printf("Done!\n");
 
 out:
-	return bytes_sent;
+	return ret;
 }
