@@ -57,7 +57,7 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 		int rc;
 		dfu_progress_bar("Upload", total_bytes, expected_size);
 		rc = dfu_upload(dif->dev_handle, dif->interface,
-		    xfer_size, transaction++, buf);
+				xfer_size, transaction++, buf);
 		if (rc < 0) {
 			warnx("\nError during upload (%s)",
 			      libusb_error_name(rc));
@@ -88,6 +88,7 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 		printf("\nFailed.\n");
 	else
 		printf("Received a total of %lli bytes\n", (long long) total_bytes);
+
 	if (expected_size != 0 && total_bytes != expected_size)
 		warnx("Unexpected number of bytes uploaded from device");
 	return ret;
@@ -120,7 +121,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 			chunk_size = xfer_size;
 
 		ret = dfu_download(dif->dev_handle, dif->interface,
-		    chunk_size, transaction++, chunk_size ? buf : NULL);
+				   chunk_size, transaction++, chunk_size ? buf : NULL);
 		if (ret < 0) {
 			warnx("Error during download (%s)",
 			      libusb_error_name(ret));
@@ -147,6 +148,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 				fprintf(stderr, "Poll timeout %i ms\n", dst.bwPollTimeout);
 
 		} while (1);
+
 		if (dst.bStatus != DFU_STATUS_OK) {
 			printf(" failed!\n");
 			printf("state(%u) = %s, status(%u) = %s\n", dst.bState,
@@ -159,8 +161,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 	}
 
 	/* send one zero sized download request to signalize end */
-	ret = dfu_download(dif->dev_handle, dif->interface,
-	    0, transaction, NULL);
+	ret = dfu_download(dif->dev_handle, dif->interface, 0, transaction, NULL);
 	if (ret < 0) {
 		errx(EX_IOERR, "Error sending completion packet (%s)",
 		     libusb_error_name(ret));
