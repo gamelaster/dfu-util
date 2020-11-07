@@ -690,6 +690,10 @@ status_again:
 		    ret = dfuload_do_upload(dfu_root, transfer_size, expected_size, fd);
 		}
 		close(fd);
+		if (ret < 0)
+			ret = EX_IOERR;
+		else
+			ret = EX_OK;
 		break;
 
 	case MODE_DOWNLOAD:
@@ -708,6 +712,10 @@ status_again:
 		} else {
 			ret = dfuload_do_dnload(dfu_root, transfer_size, &file);
 	 	}
+		if (ret < 0)
+			ret = EX_IOERR;
+		else
+			ret = EX_OK;
 		break;
 	case MODE_DETACH:
 		ret = dfu_detach(dfu_root->dev_handle, dfu_root->interface, 1000);
