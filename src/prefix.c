@@ -4,6 +4,7 @@
  * Copyright 2011-2012 Stefan Schmidt <stefan@datenfreihafen.org>
  * Copyright 2013 Hans Petter Selasky <hps@bitfrost.no>
  * Copyright 2014 Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+ * Copyright 2014-2020 Tormod Volden <debian.tormod@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +61,7 @@ static void help(void)
 static void print_version(void)
 {
 	printf("dfu-prefix (%s) %s\n\n", PACKAGE, PACKAGE_VERSION);
-	printf("Copyright 2011-2012 Stefan Schmidt, 2014 Uwe Bonnes\n"
+	printf("Copyright 2011-2012 Stefan Schmidt, 2014 Uwe Bonnes, 2014-2020 Tormod Volden\n"
 	       "This program is Free Software and has ABSOLUTELY NO WARRANTY\n"
 	       "Please report bugs to %s\n\n", PACKAGE_BUGREPORT);
 
