@@ -685,14 +685,9 @@ status_again:
 			err(EX_CANTCREAT, "Cannot open file %s for writing", file.name);
 
 		if (dfuse_device || dfuse_options) {
-		    if (dfuse_do_upload(dfu_root, transfer_size, fd,
-					dfuse_options) < 0)
-			exit(1);
+		    ret = dfuse_do_upload(dfu_root, transfer_size, fd, dfuse_options);
 		} else {
-		    if (dfuload_do_upload(dfu_root, transfer_size,
-			expected_size, fd) < 0) {
-			exit(1);
-		    }
+		    ret = dfuload_do_upload(dfu_root, transfer_size, expected_size, fd);
 		}
 		close(fd);
 		break;
@@ -709,26 +704,28 @@ status_again:
 				dfu_root->vendor, dfu_root->product);
 		}
 		if (dfuse_device || dfuse_options || file.bcdDFU == 0x11a) {
-		        if (dfuse_do_dnload(dfu_root, transfer_size, &file,
-							dfuse_options) < 0)
-				exit(1);
+			ret = dfuse_do_dnload(dfu_root, transfer_size, &file, dfuse_options);
 		} else {
-			if (dfuload_do_dnload(dfu_root, transfer_size, &file) < 0)
-				exit(1);
+			ret = dfuload_do_dnload(dfu_root, transfer_size, &file);
 	 	}
 		break;
 	case MODE_DETACH:
-		if (dfu_detach(dfu_root->dev_handle, dfu_root->interface, 1000) < 0) {
+		ret = dfu_detach(dfu_root->dev_handle, dfu_root->interface, 1000);
+		if (ret < 0) {
 			warnx("can't detach");
+			/* allow combination with final_reset */
+			ret = 0;
 		}
 		break;
 	default:
-		errx(EX_SOFTWARE, "Unsupported mode: %u", mode);
+		warnx("Unsupported mode: %u", mode);
+		ret = EX_SOFTWARE;
 		break;
 	}
 
-	if (final_reset) {
-		if (dfu_detach(dfu_root->dev_handle, dfu_root->interface, 1000) < 0) {
+	if (!ret && final_reset) {
+		ret = dfu_detach(dfu_root->dev_handle, dfu_root->interface, 1000);
+		if (ret < 0) {
 			/* Even if detach failed, just carry on to leave the
                            device in a known state */
 			warnx("can't detach");
@@ -736,7 +733,8 @@ status_again:
 		printf("Resetting USB to switch back to runtime mode\n");
 		ret = libusb_reset_device(dfu_root->dev_handle);
 		if (ret < 0 && ret != LIBUSB_ERROR_NOT_FOUND) {
-			errx(EX_IOERR, "error resetting after download: %s", libusb_error_name(ret));
+			warnx("error resetting after download: %s", libusb_error_name(ret));
+			ret = EX_IOERR;
 		}
 	}
 
@@ -744,5 +742,5 @@ status_again:
 	dfu_root->dev_handle = NULL;
 	libusb_exit(ctx);
 
-	return (0);
+	return (ret);
 }
