@@ -4,30 +4,25 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2020-07-02" />
+  <meta name="dcterms.date" content="2020-11-08" />
   <title>DFU-UTIL</title>
-  <style>
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">DFU-UTIL</h1>
-<p class="date">July 2, 2020</p>
+<p class="date">November 8, 2020</p>
 </header>
 <h1>NAME</h1>
 <p>dfu-util - Device firmware update (DFU) USB programmer</p>
 <h1>SYNOPSIS</h1>
 <p><strong>dfu-util</strong> <strong>-l</strong> [ <strong>-v</strong> ] [ <strong>-d</strong> <em>vid:pid</em>[ ,<em>vid:pid</em> ] ] [ <strong>-p</strong> <em>path</em> ] [ <strong>-c</strong> <em>configuration</em> ] [ <strong>-i</strong> <em>interface</em> ] [ <strong>-a</strong> <em>alt-intf</em> ] [ <strong>-S</strong> <em>serial</em>[ ,<em>serial</em> ] ]</p>
-<p><strong>dfu-util</strong> [ <strong>-v</strong> ] [ <strong>-d</strong> <em>vid:pid</em>[ ,<em>vid:pid</em> ] ] [ <strong>-p</strong> <em>path</em> ] [ <strong>-c</strong> <em>configuration</em> ] [ <strong>-i</strong> <em>interface</em> ] [ <strong>-a</strong> <em>alt-intf</em> ] [ <strong>-S</strong> <em>serial</em>[ ,<em>serial</em> ] ] [ <strong>-t</strong> <em>size</em> ] [ <strong>-Z</strong> <em>size</em> ] [ <strong>-s</strong> <em>address</em> ] [ <strong>-R</strong> ] [ <strong>-D</strong> | <strong>-U</strong> <em>file</em> ]</p>
+<p><strong>dfu-util</strong> [ <strong>-v</strong> ] [ <strong>-d</strong> <em>vid:pid</em>[ ,<em>vid:pid</em> ] ] [ <strong>-p</strong> <em>path</em> ] [ <strong>-c</strong> <em>configuration</em> ] [ <strong>-i</strong> <em>interface</em> ] [ <strong>-a</strong> <em>alt-intf</em> ] [ <strong>-S</strong> <em>serial</em>[ ,<em>serial</em> ] ] [ <strong>-t</strong> <em>size</em> ] [ <strong>-Z</strong> <em>size</em> ] [ <strong>-w</strong> ] [ <strong>-s</strong> <em>address</em> ] [ <strong>-R</strong> ] [ <strong>-D</strong> | <strong>-U</strong> <em>file</em> ]</p>
 <p><strong>dfu-util</strong> [ <strong>-hV</strong> ]</p>
 <h1>DESCRIPTION</h1>
 <p><strong>dfu-util</strong> is a program that implements the host (computer) side of the USB DFU (Universal Serial Bus Device Firmware Upgrade) protocol.</p>
@@ -101,7 +96,7 @@ Ignore any device in run-time mode, and Work with any device in DFU mode</p>
 <dd><p>Specify the number of bytes per USB transfer. The optimal value is usually determined automatically so this option is rarely useful. If you need to use this option for a device, please report it as a bug.</p>
 </dd>
 <dt><strong>-Z, --upload-size</strong> SIZE</dt>
-<dd><p>Specify the expected upload size, in bytes.</p>
+<dd><p>Specify the expected upload size, in bytes. Note that the value is only used for scaling the progress bar, the actual upload size is determined by the device.</p>
 </dd>
 <dt><strong>-U, --upload</strong> FILE</dt>
 <dd><p>Read firmware from device into <strong>FILE</strong>.</p>
@@ -118,11 +113,14 @@ Ignore any device in run-time mode, and Work with any device in DFU mode</p>
 <dt><strong>-E, --detach-delay</strong> SECONDS</dt>
 <dd><p>When uploading or downloading, wait <strong>SECONDS</strong> seconds for the device to re-enumerate after sending the detach request before giving up. Defaults to 5 seconds. This option has no effect with <strong>-e</strong>, since that causes dfu-util to immediately exit after sending the detach request.</p>
 </dd>
-<dt><strong>-s, --dfuse-address</strong> ADDRESS</dt>
-<dd><p>Specify target address for raw binary download/upload on DfuSe devices. Do <strong>not</strong> use this for downloading DfuSe (.dfu) files. Modifiers can be added to the address, separated by a colon, to perform special DfuSE commands such as "leave" DFU mode, "unprotect" and "mass-erase" flash memory.</p>
+<dt><strong>-w, --wait</strong></dt>
+<dd><p>Wait until matching device appears on the USB bus.</p>
+</dd>
+<dt><strong>-s, --dfuse-address</strong> [<em>ADDRESS</em>][:<em>LENGTH</em>][:<em>MODIFIERS</em>]</dt>
+<dd><p>Specify target address for raw binary download/upload on DfuSe devices. Do <strong>not</strong> use this option for downloading DfuSe (.dfu) files. A length can be specified for uploads. Modifiers can be added after the address, separated by a colon, to perform special DfuSE commands such as "leave" DFU mode, "unprotect" and "mass-erase" flash memory. If the device can be expected to reset itself after the operation, "will-reset" should be added. The "force" modifier will override some sanity checks, and is also needed for the "unprotect" and "mass-erase" operations.</p>
 </dd>
 <dt><strong>-v, --verbose</strong></dt>
-<dd><p>Print more information about dfu-util's operation. A second <strong>-v</strong> will turn on verbose logging of USB requests. Repeat this option to further increase verbosity.</p>
+<dd><p>Print more information about dfu-util's operation. A second <strong>-v</strong> adds more details. A third <strong>-v</strong> activates verbose logging of USB requests (libusb debug output).</p>
 </dd>
 <dt><strong>-h, --help</strong></dt>
 <dd><p>Show a help text and exit.</p>
@@ -153,7 +151,7 @@ Ignore any device in run-time mode, and Work with any device in DFU mode</p>
 <h1>BUGS</h1>
 <p>Please report any bugs to the dfu-util bug tracker at <strong>http://sourceforge.net/p/dfu-util/tickets/</strong>. Please use the <em>--verbose</em> option (repeated as necessary) to provide more information in your bug report.</p>
 <h1>SEE ALSO</h1>
-<p>The dfu-util home page is <strong>http://sourceforge.net/p/dfu-util/</strong></p>
+<p>The dfu-util home page is <strong>http://dfu-util.sourceforge.net/</strong></p>
 <h1>HISTORY</h1>
 <p>dfu-util was originally written for the OpenMoko project by Weston Schmidt &lt;weston_schmidt@yahoo.com&gt; and Harald Welte &lt;hwelte@hmw-consulting.de&gt;. Over time, nearly complete support of DFU 1.0, DFU 1.1 and DfuSe ("1.1a") has been added.</p>
 <h1>LICENCE</h1>

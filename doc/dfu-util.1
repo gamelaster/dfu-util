@@ -1,4 +1,4 @@
-.TH DFU-UTIL 1 "July 2, 2020"
+.TH DFU-UTIL 1 "November 8, 2020"
 .SH NAME
 dfu-util \- Device firmware update (DFU) USB programmer
 .SH SYNOPSIS
@@ -39,6 +39,7 @@ dfu-util \- Device firmware update (DFU) USB programmer
 .IR size \|]
 .RB [\| \-Z
 .IR size \|]
+.RB [\| \-w \|]
 .RB [\| \-s
 .IR address \|]
 .RB [\| \-R \|]
@@ -154,7 +155,8 @@ usually determined automatically so this option is rarely useful. If
 you need to use this option for a device, please report it as a bug.
 .TP
 .BR "\-Z, \-\-upload-size" " SIZE"
-Specify the expected upload size, in bytes.
+Specify the expected upload size, in bytes. Note that the value is only used
+for scaling the progress bar, the actual upload size is determined by the device.
 .TP
 .BR "\-U, \-\-upload" " FILE"
 Read firmware from device into
@@ -181,18 +183,26 @@ seconds for the device to re-enumerate after sending the detach request before
 giving up. Defaults to 5 seconds. This option has no effect with \fB-e\fP,
 since that causes dfu-util to immediately exit after sending the detach request.
 .TP
-.BR "\-s, \-\-dfuse-address" " ADDRESS"
+.B "\-w, \-\-wait"
+Wait until matching device appears on the USB bus.
+.TP
+.BR "\-s, \-\-dfuse-address" " [\fIADDRESS\fP][:\fILENGTH\fP][:\fIMODIFIERS\fP]"
 Specify target address for raw binary download/upload on DfuSe devices. Do
 .B not
-use this for downloading DfuSe (.dfu) files. Modifiers can be added
-to the address, separated by a colon, to perform special DfuSE commands such
-as "leave" DFU mode, "unprotect" and "mass-erase" flash memory.
+use this option for downloading DfuSe (.dfu) files.
+A length can be specified for uploads. Modifiers can be added after the
+address, separated by a colon, to perform special DfuSE commands such as
+"leave" DFU mode, "unprotect" and "mass-erase" flash memory.
+If the device can be expected to reset itself after the operation, "will-reset"
+should be added. The "force" modifier will override some sanity checks, and is
+also needed for the "unprotect" and "mass-erase" operations.
 .TP
 .B "\-v, \-\-verbose"
 Print more information about dfu-util's operation. A second
 .B -v
-will turn on verbose logging of USB requests. Repeat this option to further
-increase verbosity.
+adds more details. A third
+.B -v
+activates verbose logging of USB requests (libusb debug output).
 .TP
 .B "\-h, \-\-help"
 Show a help text and exit.
@@ -249,7 +259,7 @@ Please use the
 information in your bug report.
 .SH SEE ALSO
 The dfu-util home page is
-.B http://sourceforge.net/p/dfu-util/
+.B http://dfu-util.sourceforge.net/
 .SH HISTORY
 dfu-util was originally written for the OpenMoko project by
 Weston Schmidt <weston_schmidt@yahoo.com> and 
