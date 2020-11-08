@@ -590,6 +590,9 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 	bTargets = dfuprefix[10];
 	printf("file contains %i DFU images\n", bTargets);
 
+	printf("Please note that the next version of dfu-util will automatically\n"
+	       "set alternate interfaces based on the DfuSe file images!\n");
+
 	for (image = 1; image <= bTargets; image++) {
 		printf("parsing DFU image %i\n", image);
 		dfuse_memcpy(targetprefix, &data, &rem, sizeof(targetprefix));
