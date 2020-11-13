@@ -6,11 +6,11 @@
 dfu-suffix - add, check, or remove DFU firmware file suffix
 
 # SYNOPSIS
-dfu-suffix [*options*] [*\--add DFU_FILE*]\
-dfu-suffix [*\--check DFU_FILE*]\
-dfu-suffix [*\--delete DFU_FILE*]\
-dfu-suffix [*\--help*]\
-dfu-suffix [*\--version*]
+**dfu-suffix** [*options*] **\--add** *DFU_FILE*\
+**dfu-suffix** **\--check** *DFU_FILE*\
+**dfu-suffix** **\--delete** *DFU_FILE*\
+**dfu-suffix** **\--help**\
+**dfu-suffix** **\--version**
 
 # DESCRIPTION
 The program **dfu-suffix** can be used to add, check or remove a DFU firmware file suffix,

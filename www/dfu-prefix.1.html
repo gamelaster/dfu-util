@@ -20,11 +20,11 @@
 <h1>NAME</h1>
 <p>dfu-prefix - add, check, or remove special firmware file prefix</p>
 <h1>SYNOPSIS</h1>
-<p>dfu-prefix [<em>options</em>] [<em>--add DFU_FILE</em>]</p>
-<p>dfu-prefix [<em>--check DFU_FILE</em>]</p>
-<p>dfu-prefix [<em>--delete DFU_FILE</em>]</p>
-<p>dfu-prefix [<em>--help</em>]</p>
-<p>dfu-prefix [<em>--version</em>]</p>
+<p><strong>dfu-prefix</strong> [ <strong>-s</strong> <em>address</em> | <strong>-L</strong> ] <strong>--add</strong> <em>DFU_FILE</em></p>
+<p><strong>dfu-prefix</strong> [ <strong>-T</strong> | <strong>-L</strong> ] <strong>--check</strong> <em>DFU_FILE</em></p>
+<p><strong>dfu-prefix</strong> [ <strong>-T</strong> | <strong>-L</strong> ] <strong>--delete</strong> <em>DFU_FILE</em></p>
+<p><strong>dfu-prefix</strong> <strong>--help</strong></p>
+<p><strong>dfu-prefix</strong> <strong>--version</strong></p>
 <h1>DESCRIPTION</h1>
 <p>The program <strong>dfu-prefix</strong> can be used to add, check or remove a prefix used by certain hardware manufacturers. The Stellaris format from TI and the LPC format from NXP is supported.</p>
 <p>Note that a standard DFU firmware file has no concept of a prefix, and a DFU host tool like dfu-util passes the prefix on to the device as part of the normal firmware payload.</p>

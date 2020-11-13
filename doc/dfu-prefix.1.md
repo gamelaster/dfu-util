@@ -6,11 +6,11 @@
 dfu-prefix - add, check, or remove special firmware file prefix
 
 # SYNOPSIS
-dfu-prefix [*options*] [*\--add DFU_FILE*]\
-dfu-prefix [*\--check DFU_FILE*]\
-dfu-prefix [*\--delete DFU_FILE*]\
-dfu-prefix [*\--help*]\
-dfu-prefix [*\--version*]
+**dfu-prefix** [ **\-s** *address* | **\-L** ] **\--add** *DFU_FILE*\
+**dfu-prefix** [ **\-T** | **\-L** ] **\--check** *DFU_FILE*\
+**dfu-prefix** [ **\-T** | **\-L** ] **\--delete** *DFU_FILE*\
+**dfu-prefix** **\--help**\
+**dfu-prefix** **\--version**
 
 # DESCRIPTION
 The program **dfu-prefix** can be used to add, check or remove a prefix
