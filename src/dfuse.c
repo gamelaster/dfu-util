@@ -181,6 +181,8 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 	struct dfu_status dst;
 	int firstpoll = 1;
 	int zerotimeouts = 0;
+	int polltimeout = 0;
+	int stalls = 0;
 
 	if (command == ERASE_PAGE) {
 		struct memsegment *segment;
@@ -226,9 +228,18 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 	}
 	do {
 		ret = dfu_get_status(dif, &dst);
-		if (ret < 0) {
+		/* Workaround for some STM32L4 bootloaders that report a too
+		 * short poll timeout and may stall the pipe when we poll */
+		if (ret == LIBUSB_ERROR_PIPE && polltimeout != 0 && stalls < 3) {
+			dst.bState = DFU_STATE_dfuDNBUSY;
+			stalls++;
+			if (verbose)
+				fprintf(stderr, "* Device stalled USB pipe, reusing last poll timeout\n");
+		} else if (ret < 0) {
 			errx(EX_IOERR, "Error during special command \"%s\" get_status",
 			     dfuse_command_name[command]);
+		} else {
+			polltimeout = dst.bwPollTimeout;
 		}
 		if (firstpoll) {
 			firstpoll = 0;
@@ -241,14 +252,14 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 			}
 			/* STM32F405 lies about mass erase timeout */
 			if (command == MASS_ERASE && dst.bwPollTimeout == 100) {
-				dst.bwPollTimeout = 35000;
+				polltimeout = 35000; /* Datasheet says up to 32 seconds */
 				printf("Setting timeout to 35 seconds\n");
 			}
 		}
 		/* wait while command is executed */
 		if (verbose > 1)
-			fprintf(stderr, "   Poll timeout %i ms\n", dst.bwPollTimeout);
-		milli_sleep(dst.bwPollTimeout);
+			fprintf(stderr, "   Poll timeout %i ms\n", polltimeout);
+		milli_sleep(polltimeout);
 		if (command == READ_UNPROTECT)
 			return ret;
 		/* Workaround for e.g. Black Magic Probe getting stuck */
