@@ -192,7 +192,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 				address);
 		}
 		page_size = segment->pagesize;
-		if (verbose > 1)
+		if (verbose)
 			fprintf(stderr, "Erasing page size %i at address 0x%08x, page "
 			       "starting at 0x%08x\n", page_size, address,
 			       address & ~(page_size - 1));
@@ -233,7 +233,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		if (firstpoll) {
 			firstpoll = 0;
 			if (dst.bState != DFU_STATE_dfuDNBUSY) {
-				printf("state(%u) = %s, status(%u) = %s\n", dst.bState,
+				fprintf(stderr, "state(%u) = %s, status(%u) = %s\n", dst.bState,
 				       dfu_state_to_string(dst.bState), dst.bStatus,
 				       dfu_status_to_string(dst.bStatus));
 				errx(EX_IOERR, "Wrong state after command \"%s\" download",
@@ -246,7 +246,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 			}
 		}
 		/* wait while command is executed */
-		if (verbose)
+		if (verbose > 1)
 			fprintf(stderr, "   Poll timeout %i ms\n", dst.bwPollTimeout);
 		milli_sleep(dst.bwPollTimeout);
 		if (command == READ_UNPROTECT)
@@ -297,8 +297,8 @@ static int dfuse_dnload_chunk(struct dfu_if *dif, unsigned char *data, int size,
 			printf("Transitioning to dfuMANIFEST state\n");
 
 	if (dst.bStatus != DFU_STATUS_OK) {
-		printf(" failed!\n");
-		printf("state(%u) = %s, status(%u) = %s\n", dst.bState,
+		fprintf(stderr, " failed!\n");
+		fprintf(stderr, "state(%u) = %s, status(%u) = %s\n", dst.bState,
 		       dfu_state_to_string(dst.bState), dst.bStatus,
 		       dfu_status_to_string(dst.bStatus));
 		return -1;
@@ -420,7 +420,8 @@ static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddres
 			dwElementAddress + dwElementSize - 1);
 	}
 
-	dfu_progress_bar("Erase   ", 0, 1);
+	if (!verbose)
+		dfu_progress_bar("Erase   ", 0, 1);
 
 	/* First pass: Erase involved pages if needed */
 	for (p = 0; p < (int)dwElementSize; p += xfer_size) {
@@ -467,10 +468,14 @@ static int dfuse_dnload_element(struct dfu_if *dif, unsigned int dwElementAddres
 						      address + chunk_size - 1,
 						      ERASE_PAGE);
 			}
-			dfu_progress_bar("Erase   ", p, dwElementSize);
+			if (!verbose)
+				dfu_progress_bar("Erase   ", p, dwElementSize);
 		}
 	}
-	dfu_progress_bar("Download", 0, 1);
+	if (!verbose)
+		dfu_progress_bar("Erase   ", dwElementSize, dwElementSize);
+	if (!verbose)
+		dfu_progress_bar("Download", 0, 1);
 
 	/* Second pass: Write data to (erased) pages */
 	for (p = 0; p < (int)dwElementSize; p += xfer_size) {
@@ -531,7 +536,7 @@ static int dfuse_do_bin_dnload(struct dfu_if *dif, int xfer_size,
 	dwElementSize = file->size.total -
 	    file->size.suffix - file->size.prefix;
 
-	printf("Downloading to address = 0x%08x, size = %i\n",
+	printf("Downloading element to address = 0x%08x, size = %i\n",
 	       dwElementAddress, dwElementSize);
 
 	data = file->firmware + file->size.prefix;
@@ -651,7 +656,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 	if (rem != 0)
 		warnx("%d bytes leftover", rem);
 
-	printf("done parsing DfuSe file\n");
+	printf("Done parsing DfuSe file\n");
 
 	return 0;
 }
