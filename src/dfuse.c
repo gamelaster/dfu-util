@@ -403,6 +403,8 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 
 	dfu_abort_to_idle(dif);
 	if (dfuse_leave) {
+		if (dfuse_address_present)
+			dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
 		dfuse_dnload_chunk(dif, NULL, 0, 2); /* Zero-size */
 	}
 
@@ -727,6 +729,8 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 	}
 
 	if (dfuse_leave) {
+		if (dfuse_address_present)
+			dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
 		dfuse_dnload_chunk(dif, NULL, 0, 2); /* Zero-size */
 	}
 	return ret;
