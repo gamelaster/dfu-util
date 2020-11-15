@@ -354,12 +354,16 @@ int main(int argc, char **argv)
 		exit(0);
 	}
 
+#if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
 	if (verbose) {
 		const struct libusb_version *ver;
 		ver = libusb_get_version();
 		printf("libusb version %i.%i.%i%s (%i)\n", ver->major,
 		       ver->minor, ver->micro, ver->rc, ver->nano);
 	}
+#else
+	warnx("libusb version is ancient");
+#endif
 
 	if (mode == MODE_NONE && !dfuse_options) {
 		fprintf(stderr, "You need to specify one of -D or -U\n");
