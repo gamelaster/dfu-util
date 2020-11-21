@@ -85,7 +85,7 @@ To build it on a Debian or Ubuntu host, first install build dependencies:
 	sudo apt-get install gcc-mingw-w64-x86-64
 </pre>
 <p>
-The below example builds dfu-util 0.9 and libusb 1.0.23 from unpacked release
+The below example builds dfu-util 0.10 and libusb 1.0.23 from unpacked release
 tarballs. If you instead build from git, you will have to run "./autogen.sh"
 before running the "./configure" steps.
 </p>
@@ -99,7 +99,7 @@ make
 make install
 cd ..
 
-cd dfu-util-0.9
+cd dfu-util-0.10
 PKG_CONFIG_PATH=$PWD/../build/lib/pkgconfig ./configure \
     --host=x86_64-w64-mingw32 --prefix=$PWD/../build
 make
@@ -149,7 +149,7 @@ make
 make install
 cd ..
 
-cd dfu-util-0.9
+cd dfu-util-0.10
 ./configure USB_CFLAGS="-I$PWD/../build/include/libusb-1.0" \
             USB_LIBS="-L $PWD/../build/lib -lusb-1.0" --prefix=$PWD/../build
 make
