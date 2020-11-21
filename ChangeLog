@@ -1,4 +1,4 @@
-0.10 (unreleased)
+0.10:
 	o New --wait option for devices to appear (Jörg Riechardt)
 	o New --devnum option to filter devices (Harald Welte)
 	o Support DFU_STATE_dfuMANIFEST_WAIT_RST (Jérôme Hamm)
@@ -12,16 +12,20 @@
 	o Improve Stellaris firmware detection (Aleks Chakin)
 	o Improve warnings and debug output (Tormod Volden)
 	o Update manual page (Thomas Hebb)
+	o Manual pages for dfu-suffix and dfu-prefix (Tormod Volden)
 	o Usage text describes DfuSe modifiers (Uwe Bonnes)
 	o dfuse: Erase all pages before programming (Geoffrey Hausheer)
 	o dfuse: New "will-reset" option (Ievgenii Meshcheriakov)
 	o dfuse: Allow 0 as start address (Xavier Domont)
 	o dfuse: Workaround for Black Magic Probe issue (Tormod Volden)
+	o dfuse: Workaround for STM32L4 page erase stalls (Tormod Volden)
 	o dfuse-pack.py: Set (multiple) alternate interfaces (Tormod Volden)
 	o dfuse-pack.py: S19 and ihex support (Thilo Cestonaro)
 	o dfuse-pack.py: Intel HEX multi-segment index fix (Colin Parker)
 	o dfuse-pack.py: Correct DFUImageSize (Hendry Kaak)
 	o dfuse-pack.py: Python 3 compatibility (Michael Everitt)
+
+2020-11-21: Tormod Volden <debian.tormod@gmail.com>
 
 0.9:
 	o Reimplemented USBPATH support (Stefan Zehl)
