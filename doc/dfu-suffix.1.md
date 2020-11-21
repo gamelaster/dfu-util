@@ -1,4 +1,4 @@
-% DFU-SUFFIX(1) dfu-suffix 0.9
+% DFU-SUFFIX(1) dfu-suffix 0.10
 % See AUTHORS file in source
 % November 2020
 

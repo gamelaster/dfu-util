@@ -1,4 +1,4 @@
-% DFU-PREFIX(1) dfu-prefix 0.9
+% DFU-PREFIX(1) dfu-prefix 0.10
 % See AUTHORS file in source
 % November 2020
 
