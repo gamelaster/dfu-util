@@ -312,8 +312,11 @@ found_dfu:
 				if (match_devnum >= 0 && match_devnum != libusb_get_device_address(dev))
 					continue;
 
-				if (libusb_open(dev, &devh)) {
-					warnx("Cannot open DFU device %04x:%04x", desc->idVendor, desc->idProduct);
+				ret = libusb_open(dev, &devh);
+				if (ret) {
+					warnx("Cannot open DFU device %04x:%04x found on devnum %i (%s)",
+					      desc->idVendor, desc->idProduct, libusb_get_device_address(dev),
+					      libusb_error_name(ret));
 					break;
 				}
 				if (intf->iInterface != 0)
