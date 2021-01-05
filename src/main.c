@@ -661,16 +661,13 @@ status_again:
 			errx(EX_USAGE, "Transfer size must be specified");
 	}
 
-#ifdef HAVE_GETPAGESIZE
-/* autotools lie when cross-compiling for Windows using mingw32/64 */
-#ifndef __MINGW32__
-	/* limitation of Linux usbdevio */
-	if ((int)transfer_size > getpagesize()) {
-		transfer_size = getpagesize();
+#ifdef __linux__
+	/* limited to 4k in libusb Linux backend */
+	if ((int)transfer_size > 4096) {
+		transfer_size = 4096;
 		printf("Limited transfer size to %i\n", transfer_size);
 	}
-#endif /* __MINGW32__ */
-#endif /* HAVE_GETPAGESIZE */
+#endif /* __linux__ */
 
 	if (transfer_size < dfu_root->bMaxPacketSize0) {
 		transfer_size = dfu_root->bMaxPacketSize0;
