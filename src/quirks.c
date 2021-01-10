@@ -63,11 +63,13 @@ uint16_t get_quirks(uint16_t vendor, uint16_t product, uint16_t bcdDevice)
 		quirks |= QUIRK_POLLTIMEOUT;
 
 	/* Some GigaDevice GD32 devices have improperly-encoded serial numbers
-	 * and bad DfuSe descriptors which we use serial number to correct. */
+	 * and bad DfuSe descriptors which we use serial number to correct.
+	 * They also "leave" without a DFU_GETSTATUS request */
 	if (vendor == VENDOR_GIGADEVICE &&
 	    product == PRODUCT_GD32) {
 		quirks |= QUIRK_UTF8_SERIAL;
 		quirks |= QUIRK_DFUSE_LAYOUT;
+		quirks |= QUIRK_DFUSE_LEAVE;
 	}
 
 	return (quirks);

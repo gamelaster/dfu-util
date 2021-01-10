@@ -322,6 +322,17 @@ static int dfuse_dnload_chunk(struct dfu_if *dif, unsigned char *data, int size,
 	return bytes_sent;
 }
 
+static void dfuse_do_leave(struct dfu_if *dif)
+{
+	if (dfuse_address_present)
+		dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
+	if (dif->quirks & QUIRK_DFUSE_LEAVE)
+		/* leave without DFU_GETSTATUS */
+		dfuse_download(dif, 0, NULL, 2);
+	else
+		dfuse_dnload_chunk(dif, NULL, 0, 2);
+}
+
 int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 		    const char *dfuse_options)
 {
@@ -407,11 +418,8 @@ int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
 	dfu_progress_bar("Upload", total_bytes, total_bytes);
 
 	dfu_abort_to_idle(dif);
-	if (dfuse_leave) {
-		if (dfuse_address_present)
-			dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
-		dfuse_dnload_chunk(dif, NULL, 0, 2); /* Zero-size */
-	}
+	if (dfuse_leave)
+		dfuse_do_leave(dif);
 
  out_free:
 	free(buf);
@@ -729,10 +737,8 @@ int dfuse_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file,
 		dfu_abort_to_idle(dif);
 	}
 
-	if (dfuse_leave) {
-		if (dfuse_address_present)
-			dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
-		dfuse_dnload_chunk(dif, NULL, 0, 2); /* Zero-size */
-	}
+	if (dfuse_leave)
+		dfuse_do_leave(dif);
+
 	return ret;
 }

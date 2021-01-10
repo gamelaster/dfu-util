@@ -27,6 +27,7 @@
 #define QUIRK_FORCE_DFU11  (1<<1)
 #define QUIRK_UTF8_SERIAL  (1<<2)
 #define QUIRK_DFUSE_LAYOUT (1<<3)
+#define QUIRK_DFUSE_LEAVE  (1<<4)
 
 /* Fallback value, works for OpenMoko */
 #define DEFAULT_POLLTIMEOUT  5
