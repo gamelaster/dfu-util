@@ -257,12 +257,16 @@ found_dfu:
 
 		for (intf_idx = 0; intf_idx < cfg->bNumInterfaces;
 		     intf_idx++) {
+			int multiple_alt;
+
 			if (match_iface_index > -1 && match_iface_index != intf_idx)
 				continue;
 
 			uif = &cfg->interface[intf_idx];
 			if (!uif)
 				break;
+
+			multiple_alt = uif->num_altsetting > 0;
 
 			for (alt_idx = 0;
 			     alt_idx < uif->num_altsetting; alt_idx++) {
@@ -380,6 +384,8 @@ found_dfu:
 					errx(EX_SOFTWARE, "Out of memory");
 				if (dfu_mode)
 					pdfu->flags |= DFU_IFF_DFU;
+				if (multiple_alt)
+					pdfu->flags |= DFU_IFF_ALT;
 				if (pdfu->quirks & QUIRK_FORCE_DFU11) {
 					pdfu->func_dfu.bcdDFUVersion =
 					  libusb_cpu_to_le16(0x0110);

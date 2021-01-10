@@ -471,9 +471,16 @@ probe:
 				dfu_root->interface, libusb_error_name(ret));
 		}
 
-		ret = libusb_set_interface_alt_setting(dfu_root->dev_handle, dfu_root->interface, 0);
-		if (ret < 0) {
-			errx(EX_IOERR, "Cannot set alt interface zero: %s", libusb_error_name(ret));
+		/* Needed for some devices where the DFU interface is not the first,
+		 * and should also be safe if there are multiple alt settings.
+		 * Otherwise skip the request since it might not be supported
+		 * by the device and the USB stack may or may not recover */
+		if (dfu_root->interface > 0 || dfu_root->flags & DFU_IFF_ALT) {
+			printf("Setting Alternate Interface zero");
+			ret = libusb_set_interface_alt_setting(dfu_root->dev_handle, dfu_root->interface, 0);
+			if (ret < 0) {
+				errx(EX_IOERR, "Cannot set alternate interface zero: %s", libusb_error_name(ret));
+			}
 		}
 
 		printf("Determining device status: ");
@@ -586,10 +593,12 @@ dfustate:
 		errx(EX_IOERR, "Cannot claim interface - %s", libusb_error_name(ret));
 	}
 
-	printf("Setting Alternate Setting #%d ...\n", dfu_root->altsetting);
-	ret = libusb_set_interface_alt_setting(dfu_root->dev_handle, dfu_root->interface, dfu_root->altsetting);
-	if (ret < 0) {
-		errx(EX_IOERR, "Cannot set alternate interface: %s", libusb_error_name(ret));
+	if (dfu_root->flags & DFU_IFF_ALT) {
+		printf("Setting Alternate Interface #%d ...\n", dfu_root->altsetting);
+		ret = libusb_set_interface_alt_setting(dfu_root->dev_handle, dfu_root->interface, dfu_root->altsetting);
+		if (ret < 0) {
+			errx(EX_IOERR, "Cannot set alternate interface: %s", libusb_error_name(ret));
+		}
 	}
 
 status_again:

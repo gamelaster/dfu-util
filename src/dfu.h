@@ -67,6 +67,7 @@
 
 /* DFU interface */
 #define DFU_IFF_DFU             0x0001  /* DFU Mode, (not Runtime) */
+#define DFU_IFF_ALT             0x0002  /* Multiple alternate settings */
 
 /* This is based off of DFU_GETSTATUS
  *
