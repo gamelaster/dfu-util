@@ -155,7 +155,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 
 		if (dst.bStatus != DFU_STATUS_OK) {
 			printf(" failed!\n");
-			printf("state(%u) = %s, status(%u) = %s\n", dst.bState,
+			printf("DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
 				dfu_state_to_string(dst.bState), dst.bStatus,
 				dfu_status_to_string(dst.bStatus));
 			ret = -1;
@@ -185,7 +185,7 @@ get_status:
 		      libusb_error_name(ret));
 		goto out;
 	}
-	printf("state(%u) = %s, status(%u) = %s\n", dst.bState,
+	printf("DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
 		dfu_state_to_string(dst.bState), dst.bStatus,
 		dfu_status_to_string(dst.bStatus));
 

@@ -448,7 +448,7 @@ probe:
 	if (ret || !dfu_root->dev_handle)
 		errx(EX_IOERR, "Cannot open device: %s", libusb_error_name(ret));
 
-	printf("ID %04x:%04x\n", dfu_root->vendor, dfu_root->product);
+	printf("Device ID %04x:%04x\n", dfu_root->vendor, dfu_root->product);
 
 	/* If first interface is DFU it is likely not proper run-time */
 	if (dfu_root->interface > 0)
@@ -488,8 +488,7 @@ probe:
 			}
 		}
 
-		printf("Determining device status: ");
-
+		printf("Determining device status...\n");
 		err = dfu_get_status(dfu_root, &status);
 		if (err == LIBUSB_ERROR_PIPE) {
 			printf("Device does not implement get_status, assuming appIDLE\n");
@@ -498,10 +497,11 @@ probe:
 			status.bState  = DFU_STATE_appIDLE;
 			status.iString = 0;
 		} else if (err < 0) {
-			errx(EX_IOERR, "error get_status");
+			errx(EX_IOERR, "error get_status: %s", libusb_error_name(err));
 		} else {
-			printf("state = %s, status = %d\n",
-			       dfu_state_to_string(status.bState), status.bStatus);
+			printf("DFU state(%u) = %s, status(%u) = %s\n", status.bState,
+			       dfu_state_to_string(status.bState), status.bStatus,
+			       dfu_status_to_string(status.bStatus));
 		}
 		milli_sleep(status.bwPollTimeout);
 
@@ -608,13 +608,14 @@ dfustate:
 	}
 
 status_again:
-	printf("Determining device status: ");
+	printf("Determining device status...\n");
 	ret = dfu_get_status(dfu_root, &status );
 	if (ret < 0) {
 		errx(EX_IOERR, "error get_status: %s", libusb_error_name(ret));
 	}
-	printf("state = %s, status = %d\n",
-	       dfu_state_to_string(status.bState), status.bStatus);
+	printf("DFU state(%u) = %s, status(%u) = %s\n", status.bState,
+	       dfu_state_to_string(status.bState), status.bStatus,
+	       dfu_status_to_string(status.bStatus));
 
 	milli_sleep(status.bwPollTimeout);
 
@@ -624,7 +625,7 @@ status_again:
 		errx(EX_PROTOCOL, "Device still in Run-Time Mode!");
 		break;
 	case DFU_STATE_dfuERROR:
-		printf("dfuERROR, clearing status\n");
+		printf("Clearing status\n");
 		if (dfu_clear_status(dfu_root->dev_handle, dfu_root->interface) < 0) {
 			errx(EX_IOERR, "error clear_status");
 		}
@@ -632,15 +633,13 @@ status_again:
 		break;
 	case DFU_STATE_dfuDNLOAD_IDLE:
 	case DFU_STATE_dfuUPLOAD_IDLE:
-		printf("aborting previous incomplete transfer\n");
+		printf("Aborting previous incomplete transfer\n");
 		if (dfu_abort(dfu_root->dev_handle, dfu_root->interface) < 0) {
 			errx(EX_IOERR, "can't send DFU_ABORT");
 		}
 		goto status_again;
 		break;
 	case DFU_STATE_dfuIDLE:
-		printf("dfuIDLE, continuing\n");
-		break;
 	default:
 		break;
 	}

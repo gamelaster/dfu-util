@@ -248,7 +248,7 @@ static int dfuse_special_command(struct dfu_if *dif, unsigned int address,
 		if (firstpoll) {
 			firstpoll = 0;
 			if (dst.bState != DFU_STATE_dfuDNBUSY) {
-				fprintf(stderr, "state(%u) = %s, status(%u) = %s\n", dst.bState,
+				fprintf(stderr, "DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
 				       dfu_state_to_string(dst.bState), dst.bStatus,
 				       dfu_status_to_string(dst.bStatus));
 				errx(EX_PROTOCOL, "Wrong state after command \"%s\" download",
@@ -313,8 +313,8 @@ static int dfuse_dnload_chunk(struct dfu_if *dif, unsigned char *data, int size,
 			printf("Transitioning to dfuMANIFEST state\n");
 
 	if (dst.bStatus != DFU_STATUS_OK) {
-		fprintf(stderr, " failed!\n");
-		fprintf(stderr, "state(%u) = %s, status(%u) = %s\n", dst.bState,
+		printf(" failed!\n");
+		fprintf(stderr, "DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
 		       dfu_state_to_string(dst.bState), dst.bStatus,
 		       dfu_status_to_string(dst.bStatus));
 		return -1;
