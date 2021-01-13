@@ -450,7 +450,12 @@ probe:
 
 	printf("ID %04x:%04x\n", dfu_root->vendor, dfu_root->product);
 
-	printf("Run-time device DFU version %04x\n",
+	/* If first interface is DFU it is likely not proper run-time */
+	if (dfu_root->interface > 0)
+		printf("Run-Time device");
+	else
+		printf("Device");
+	printf(" DFU version %04x\n",
 	       libusb_le16_to_cpu(dfu_root->func_dfu.bcdDFUVersion));
 
 	/* Transition from run-Time mode to DFU mode */
@@ -464,7 +469,7 @@ probe:
 		runtime_vendor = dfu_root->vendor;
 		runtime_product = dfu_root->product;
 
-		printf("Claiming USB DFU Runtime Interface...\n");
+		printf("Claiming USB DFU (Run-Time) Interface...\n");
 		ret = libusb_claim_interface(dfu_root->dev_handle, dfu_root->interface);
 		if (ret < 0) {
 			errx(EX_IOERR, "Cannot claim interface %d: %s",
@@ -503,7 +508,7 @@ probe:
 		switch (status.bState) {
 		case DFU_STATE_appIDLE:
 		case DFU_STATE_appDETACH:
-			printf("Device really in Runtime Mode, send DFU "
+			printf("Device really in Run-Time Mode, send DFU "
 			       "detach request...\n");
 			if (dfu_detach(dfu_root->dev_handle,
 				       dfu_root->interface, 1000) < 0) {
@@ -527,7 +532,8 @@ probe:
 			}
 			/* fall through */
 		default:
-			warnx("WARNING: Runtime device already in DFU state ?!?");
+			warnx("WARNING: Device already in DFU mode? (bState=%d %s)",
+			      status.bState, dfu_state_to_string(status.bState));
 			libusb_release_interface(dfu_root->dev_handle,
 			    dfu_root->interface);
 			goto dfustate;
@@ -615,7 +621,7 @@ status_again:
 	switch (status.bState) {
 	case DFU_STATE_appIDLE:
 	case DFU_STATE_appDETACH:
-		errx(EX_PROTOCOL, "Device still in Runtime Mode!");
+		errx(EX_PROTOCOL, "Device still in Run-Time Mode!");
 		break;
 	case DFU_STATE_dfuERROR:
 		printf("dfuERROR, clearing status\n");
@@ -748,7 +754,7 @@ status_again:
                            device in a known state */
 			warnx("can't detach");
 		}
-		printf("Resetting USB to switch back to runtime mode\n");
+		printf("Resetting USB to switch back to Run-Time mode\n");
 		ret = libusb_reset_device(dfu_root->dev_handle);
 		if (ret < 0 && ret != LIBUSB_ERROR_NOT_FOUND) {
 			warnx("error resetting after download: %s", libusb_error_name(ret));
