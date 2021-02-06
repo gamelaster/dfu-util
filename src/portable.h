@@ -2,9 +2,7 @@
 #ifndef PORTABLE_H
 #define PORTABLE_H
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#else
+#ifndef HAVE_CONFIG_H
 # define PACKAGE "dfu-util"
 # define PACKAGE_VERSION "0.10-msvc"
 # define PACKAGE_STRING "dfu-util 0.10-msvc"
