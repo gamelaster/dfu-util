@@ -158,7 +158,7 @@ if __name__=="__main__":
           print("Unreadable file '%s'." % binfile)
           sys.exit(1)
         checkbin(binfile)
-        if old_ealt and ealt != old_ealt:
+        if old_ealt is not None and ealt != old_ealt:
           targets.append(target)
           target = []
         target.append({ 'address': address, 'alt': ealt, 'data': open(binfile,'rb').read() })
