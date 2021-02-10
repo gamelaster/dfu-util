@@ -615,10 +615,10 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 		return -EINVAL;
 	}
 	bTargets = dfuprefix[10];
-	printf("file contains %i DFU images\n", bTargets);
+	printf("File contains %i DFU images\n", bTargets);
 
 	for (image = 1; image <= bTargets; image++) {
-		printf("parsing DFU image %i\n", image);
+		printf("Parsing DFU image %i\n", image);
 		dfuse_memcpy(targetprefix, &data, &rem, sizeof(targetprefix));
 		if (strncmp((char *)targetprefix, "Target", 6)) {
 			errx(EX_DATAERR, "No valid target signature");
@@ -630,7 +630,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 		else
 			printf("No target name\n");
 		dwNbElements = quad2uint((unsigned char *)targetprefix + 270);
-		printf("image for alternate setting %i, ", bAlternateSetting);
+		printf("Image for alternate setting %i, ", bAlternateSetting);
 		printf("(%i elements, ", dwNbElements);
 		printf("total size = %i)\n",
 		       quad2uint((unsigned char *)targetprefix + 266));
@@ -639,7 +639,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 		while (adif) {
 			if (bAlternateSetting == adif->altsetting) {
 				adif->dev_handle = dif->dev_handle;
-				printf("Setting Alternate Setting #%d ...\n",
+				printf("Setting Alternate Interface #%d ...\n",
 				       adif->altsetting);
 				ret = libusb_set_interface_alt_setting(
 					  adif->dev_handle,
@@ -658,7 +658,7 @@ static int dfuse_do_dfuse_dnload(struct dfu_if *dif, int xfer_size,
 			     bAlternateSetting);
 
 		for (element = 1; element <= dwNbElements; element++) {
-			printf("parsing element %i, ", element);
+			printf("Parsing element %i, ", element);
 			dfuse_memcpy(elementheader, &data, &rem, sizeof(elementheader));
 			dwElementAddress =
 			    quad2uint((unsigned char *)elementheader);
