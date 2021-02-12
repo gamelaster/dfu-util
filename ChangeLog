@@ -1,3 +1,13 @@
+0.11 (unreleased):
+	o Fix suffix check regression on Windows with Large File Support
+	o Skip setting alternate interface when not needed
+	o Only clamp transfer size on Linux
+	o Quirk for GD32 leave request
+	o Improve status and error messages and exit codes
+	o dfuse: Process all alternate interfaces in a DfuSe file
+	o dfuse-pack.py: Fix alternate settings if first is 0
+
+
 0.10:
 	o New --wait option for devices to appear (Jörg Riechardt)
 	o New --devnum option to filter devices (Harald Welte)
