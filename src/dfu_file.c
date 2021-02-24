@@ -335,8 +335,7 @@ checked:
 				errx(EX_DATAERR, "Valid DFU suffix needed");
 			} else if (check_suffix == MAYBE_SUFFIX) {
 				warnx("Warning: %s", reason);
-				warnx("A valid DFU suffix will be required in "
-				      "a future dfu-util release!!!");
+				warnx("A valid DFU suffix will be required in a future dfu-util release");
 			}
 		} else {
 			if (check_suffix == NO_SUFFIX) {
