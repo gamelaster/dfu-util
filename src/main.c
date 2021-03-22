@@ -483,7 +483,7 @@ probe:
 		 * Otherwise skip the request since it might not be supported
 		 * by the device and the USB stack may or may not recover */
 		if (dfu_root->interface > 0 || dfu_root->flags & DFU_IFF_ALT) {
-			printf("Setting Alternate Interface zero");
+			printf("Setting Alternate Interface zero...\n");
 			ret = libusb_set_interface_alt_setting(dfu_root->dev_handle, dfu_root->interface, 0);
 			if (ret < 0) {
 				errx(EX_IOERR, "Cannot set alternate interface zero: %s", libusb_error_name(ret));
