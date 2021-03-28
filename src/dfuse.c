@@ -165,6 +165,9 @@ static int dfuse_download(struct dfu_if *dif, const unsigned short length,
 		 /* wLength       */	 length,
 					 DFU_TIMEOUT);
 	if (status < 0) {
+		/* Silently fail on leave request on some unpredictable devices */
+		if ((dif->quirks & QUIRK_DFUSE_LEAVE) && !length && !data && transaction == 2)
+			return status;
 		warnx("dfuse_download: libusb_control_transfer returned %d (%s)",
 		      status, libusb_error_name(status));
 	}
@@ -325,11 +328,15 @@ static void dfuse_do_leave(struct dfu_if *dif)
 {
 	if (dfuse_address_present)
 		dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
-	if (dif->quirks & QUIRK_DFUSE_LEAVE)
-		/* leave without DFU_GETSTATUS */
+	if (dif->quirks & QUIRK_DFUSE_LEAVE) {
+		struct dfu_status dst;
+		/* The device might leave after this request, with or without a response */
 		dfuse_download(dif, 0, NULL, 2);
-	else
+		/* Or it might leave after this request, with or without a response */
+		dfu_get_status(dif, &dst);
+	} else {
 		dfuse_dnload_chunk(dif, NULL, 0, 2);
+	}
 }
 
 int dfuse_do_upload(struct dfu_if *dif, int xfer_size, int fd,
