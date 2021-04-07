@@ -460,6 +460,20 @@ probe:
 	printf(" DFU version %04x\n",
 	       libusb_le16_to_cpu(dfu_root->func_dfu.bcdDFUVersion));
 
+	if (verbose) {
+		printf("DFU attributes: (0x%02x)", dfu_root->func_dfu.bmAttributes);
+		if (dfu_root->func_dfu.bmAttributes & USB_DFU_CAN_DOWNLOAD)
+			printf(" bitCanDnload");
+		if (dfu_root->func_dfu.bmAttributes & USB_DFU_CAN_UPLOAD)
+			printf(" bitCanUpload");
+		if (dfu_root->func_dfu.bmAttributes & USB_DFU_MANIFEST_TOL)
+			printf(" bitManifestationTolerant");
+		if (dfu_root->func_dfu.bmAttributes & USB_DFU_WILL_DETACH)
+			printf(" bitWillDetach");
+		printf("\n");
+		printf("Detach timeout %d ms\n", libusb_le16_to_cpu(dfu_root->func_dfu.wDetachTimeOut));
+	}
+
 	/* Transition from run-Time mode to DFU mode */
 	if (!(dfu_root->flags & DFU_IFF_DFU)) {
 		int err;
