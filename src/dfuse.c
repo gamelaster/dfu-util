@@ -328,6 +328,7 @@ static void dfuse_do_leave(struct dfu_if *dif)
 {
 	if (dfuse_address_present)
 		dfuse_special_command(dif, dfuse_address, SET_ADDRESS);
+	printf("Submitting leave request...\n");
 	if (dif->quirks & QUIRK_DFUSE_LEAVE) {
 		struct dfu_status dst;
 		/* The device might leave after this request, with or without a response */
