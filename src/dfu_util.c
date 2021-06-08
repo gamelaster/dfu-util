@@ -441,7 +441,7 @@ void probe_devices(libusb_context *ctx)
 			continue;
 		probe_configuration(dev, &desc);
 	}
-	libusb_free_device_list(list, 0);
+	libusb_free_device_list(list, 1);
 }
 
 void disconnect_devices(void)

@@ -421,7 +421,9 @@ probe:
 
 	if (mode == MODE_LIST) {
 		list_dfu_interfaces();
-		exit(EX_OK);
+		disconnect_devices();
+		libusb_exit(ctx);
+		return EX_OK;
 	}
 
 	if (dfu_root == NULL) {
@@ -429,7 +431,9 @@ probe:
 			milli_sleep(20);
 			goto probe;
 		} else {
-			errx(EX_IOERR, "No DFU capable USB device available");
+			warnx("No DFU capable USB device available");
+			libusb_exit(ctx);
+			return EX_IOERR;
 		}
 	} else if (file.bcdDFU == 0x11a && dfuse_multiple_alt(dfu_root)) {
 		printf("Multiple alternate interfaces for DfuSe file\n");
@@ -559,13 +563,13 @@ probe:
 		libusb_close(dfu_root->dev_handle);
 		dfu_root->dev_handle = NULL;
 
-		if (mode == MODE_DETACH) {
-			libusb_exit(ctx);
-			exit(EX_OK);
-		}
-
 		/* keeping handles open might prevent re-enumeration */
 		disconnect_devices();
+
+		if (mode == MODE_DETACH) {
+			libusb_exit(ctx);
+			return EX_OK;
+		}
 
 		milli_sleep(detach_delay * 1000);
 
@@ -712,8 +716,11 @@ status_again:
 	case MODE_UPLOAD:
 		/* open for "exclusive" writing */
 		fd = open(file.name, O_WRONLY | O_BINARY | O_CREAT | O_EXCL | O_TRUNC, 0666);
-		if (fd < 0)
-			err(EX_CANTCREAT, "Cannot open file %s for writing", file.name);
+		if (fd < 0) {
+			warn("Cannot open file %s for writing", file.name);
+			ret = EX_CANTCREAT;
+			break;
+		}
 
 		if (dfuse_device || dfuse_options) {
 		    ret = dfuse_do_upload(dfu_root, transfer_size, fd, dfuse_options);
@@ -779,7 +786,8 @@ status_again:
 
 	libusb_close(dfu_root->dev_handle);
 	dfu_root->dev_handle = NULL;
-	libusb_exit(ctx);
 
-	return (ret);
+	disconnect_devices();
+	libusb_exit(ctx);
+	return ret;
 }
