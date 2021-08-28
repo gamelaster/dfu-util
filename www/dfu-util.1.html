@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2020-11-08" />
   <title>DFU-UTIL</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
@@ -16,7 +15,7 @@
 <body>
 <header id="title-block-header">
 <h1 class="title">DFU-UTIL</h1>
-<p class="date">November 8, 2020</p>
+<p class="date">September 2021</p>
 </header>
 <h1>NAME</h1>
 <p>dfu-util - Device firmware update (DFU) USB programmer</p>
@@ -143,7 +142,7 @@ Ignore any device in run-time mode, and Work with any device in DFU mode</p>
 <p>Once this has finished, the kernel will be available at the default load address of 0x32000000 in Neo1973 RAM. <strong>Note:</strong> You cannot transfer more than 2MB of data into RAM using this method.</p>
 <h2>Using dfu-util with a DfuSe device</h2>
 <p>Flashing a <strong>.dfu</strong> (special DfuSe format) file to the device:<br />
-<strong> $ dfu-util -a 0 -D /path/to/dfuse-image.dfu</strong></p>
+<strong> $ dfu-util -D /path/to/dfuse-image.dfu</strong></p>
 <p>Reading out 1 KB of flash starting at address 0x8000000:<br />
 <strong> $ dfu-util -a 0 -s 0x08000000:1024 -U newfile.bin</strong></p>
 <p>Flashing a binary file to address 0x8004000 of device memory and ask the device to leave DFU mode:<br />
