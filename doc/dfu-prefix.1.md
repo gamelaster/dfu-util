@@ -1,6 +1,6 @@
-% DFU-PREFIX(1) dfu-prefix 0.10
+% DFU-PREFIX(1) dfu-util 0.11
 % See AUTHORS file in source
-% November 2020
+% September 2021
 
 # NAME
 dfu-prefix - add, check, or remove special firmware file prefix

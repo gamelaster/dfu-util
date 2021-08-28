@@ -1,6 +1,6 @@
-% DFU-SUFFIX(1) dfu-suffix 0.10
+% DFU-SUFFIX(1) dfu-util 0.11
 % See AUTHORS file in source
-% November 2020
+% September 2021
 
 # NAME
 dfu-suffix - add, check, or remove DFU firmware file suffix
