@@ -4,8 +4,8 @@
 
 #ifndef HAVE_CONFIG_H
 # define PACKAGE "dfu-util"
-# define PACKAGE_VERSION "0.10-msvc"
-# define PACKAGE_STRING "dfu-util 0.10-msvc"
+# define PACKAGE_VERSION "0.11-msvc"
+# define PACKAGE_STRING "dfu-util 0.11-msvc"
 # define PACKAGE_BUGREPORT "http://sourceforge.net/p/dfu-util/tickets/"
 # include <io.h>
 /* FIXME if off_t is a typedef it is not a define */
