@@ -1,4 +1,4 @@
-0.11 (unreleased):
+0.11:
 	o Fix suffix check regression on Windows with Large File Support
 	o Skip setting alternate interface when not needed
 	o Only clamp transfer size on Linux
@@ -7,6 +7,7 @@
 	o dfuse: Process all alternate interfaces in a DfuSe file
 	o dfuse-pack.py: Fix alternate settings if first is 0
 
+	2021-09-05 Tormod Volden <debian.tormod@gmail.com>
 
 0.10:
 	o New --wait option for devices to appear (Jörg Riechardt)
@@ -35,7 +36,7 @@
 	o dfuse-pack.py: Correct DFUImageSize (Hendry Kaak)
 	o dfuse-pack.py: Python 3 compatibility (Michael Everitt)
 
-2020-11-21: Tormod Volden <debian.tormod@gmail.com>
+	2020-11-21 Tormod Volden <debian.tormod@gmail.com>
 
 0.9:
 	o Reimplemented USBPATH support (Stefan Zehl)
@@ -45,7 +46,7 @@
 	o Workaround for LPC DFU bootloader (Dirk Castelijns)
 	o Include example udev rules file (Tormod Volden)
 
-2016-02-08: Tormod Volden <debian.tormod@gmail.com>
+	2016-02-08 Tormod Volden <debian.tormod@gmail.com>
 
 0.8:
 	o New, separate dfu-prefix tool (Uwe Bonnes)
@@ -60,7 +61,7 @@
 	o dfuse-pack.py tool for .dfu files (Antonio Galeo)
 	o Many other fixes from many people
 
-2014-09-13: Tormod Volden <debian.tormod@gmail.com>	
+	2014-09-13 Tormod Volden <debian.tormod@gmail.com>
 
 0.7:
 	o Support for TI Stellaris devices (Tommi Keisala)
@@ -71,7 +72,7 @@
 	  o Arbitrary upload lengths
 	  o "force" option for various possible (dangerous) overrides
 
-2012-10-07: Tormod Volden <debian.tormod@gmail.com>	
+	2012-10-07 Tormod Volden <debian.tormod@gmail.com>
 
 0.6:
 	o Add detach mode (Stefan Schmidt)
@@ -92,7 +93,7 @@
 	  an error about it.  (Tormod Volden)
 	o Add quirk for Maple since it reports wrong DFU version (Tormod Volden)
 
-2012-04-22: Stefan Schmidt <stefan@datenfreihafen.org>
+	2012-04-22 Stefan Schmidt <stefan@datenfreihafen.org>
 
 0.5:
 	o DfuSe extension support for ST devices (Tormod Volden)
@@ -100,7 +101,7 @@
 	  Volden)
 	o Internal cleanup and some manual page fixes (Tormod Volden)
 
-2011-11-02: Stefan Schmidt <stefan@datenfreihafen.org>
+	2011-11-02 Stefan Schmidt <stefan@datenfreihafen.org>
 
 0.4:
 	o Rework to use libusb-1.0 (Stefan Schmidt)
@@ -109,12 +110,12 @@
 	o More flexible -d vid:pid parsing (Tormod Volden)
 	o Many bug fixes and cleanups
 
-2011-07-20: Stefan Schmidt <stefan@datenfreihafen.org>
+	2011-07-20 Stefan Schmidt <stefan@datenfreihafen.org>
 
 0.3:
 	o quirks: Add OpenOCD to the poll timeout quirk table.
 
-2010-12-22: Stefan Schmidt <stefan@datenfreihafen.org>
+	2010-12-22 Stefan Schmidt <stefan@datenfreihafen.org>
 
 0.2:
 	o Fix some typos on the website and the README (Antonio Ospite, Uwe
@@ -134,9 +135,9 @@
 	o Print out in which direction we are transferring data
 	o Abort in upload if the file already exists
 
-2010-11-17 Stefan Schmidt <stefan@datenfreihafen.org>
+	2010-11-17 Stefan Schmidt <stefan@datenfreihafen.org>
 
 0.1:
 	Initial release
 
-2010-05-23 Stefan Schmidt <stefan@datenfreihafen.org>
+	2010-05-23 Stefan Schmidt <stefan@datenfreihafen.org>
