@@ -159,6 +159,8 @@ void dfu_progress_bar(const char *desc, unsigned long long curr,
 
 	if (progress == PROGRESS_BAR_WIDTH)
 		_PRINTF("\n%s done.\n", desc);
+#else
+  lib_report_state(desc, (100ULL * curr) / max);
 #endif
 }
 

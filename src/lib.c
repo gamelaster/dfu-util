@@ -712,3 +712,10 @@ void lib_fprintf(FILE* stream, const char* format, ...)
     libdfu_stderr_callback(data);
   }
 }
+
+void lib_report_state(const char* state, int progress)
+{
+  if (libdfu_progress_callback != NULL) {
+    libdfu_progress_callback(state, progress);
+  }
+}

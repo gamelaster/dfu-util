@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+void lib_report_state(const char* state, int progress);
 void lib_printf(const char* format, ...);
 void lib_fprintf(FILE* stream, const char* format, ...);
 #define _PRINTF(format, ...) lib_printf(format, __VA_ARGS__)
