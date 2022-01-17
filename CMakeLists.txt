@@ -26,3 +26,28 @@ if (WIN32)
     target_link_directories(dfu-util PRIVATE ../libusb-prebuilt/dll)
     target_link_libraries(dfu-util PRIVATE libusb-1.0)
 endif ()
+
+add_library(libdfu-util SHARED src/lib.c
+        src/portable.h
+        src/dfu_load.c
+        src/dfu_load.h
+        src/dfu_util.c
+        src/dfu_util.h
+        src/dfuse.c
+        src/dfuse.h
+        src/dfuse_mem.c
+        src/dfuse_mem.h
+        src/dfu.c
+        src/dfu.h
+        src/usb_dfu.h
+        src/dfu_file.c
+        src/dfu_file.h
+        src/quirks.c
+        src/quirks.h)
+
+if (WIN32)
+    target_compile_definitions(libdfu-util PRIVATE HAVE_WINDOWS_H _CRT_SECURE_NO_WARNINGS)
+    target_include_directories(libdfu-util PRIVATE ../libusb-prebuilt/include/libusb-1.0)
+    target_link_directories(libdfu-util PRIVATE ../libusb-prebuilt/dll)
+    target_link_libraries(libdfu-util PRIVATE libusb-1.0)
+endif ()
