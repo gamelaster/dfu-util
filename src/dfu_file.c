@@ -121,6 +121,7 @@ static int probe_prefix(struct dfu_file *file)
 void dfu_progress_bar(const char *desc, unsigned long long curr,
 		unsigned long long max)
 {
+#if 0
 	static char buf[PROGRESS_BAR_WIDTH + 1];
 	static unsigned long long last_progress = -1;
 	static time_t last_time;
@@ -158,6 +159,7 @@ void dfu_progress_bar(const char *desc, unsigned long long curr,
 
 	if (progress == PROGRESS_BAR_WIDTH)
 		_PRINTF("\n%s done.\n", desc);
+#endif
 }
 
 void *dfu_malloc(size_t size)
