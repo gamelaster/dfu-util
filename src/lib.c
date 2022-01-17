@@ -660,3 +660,54 @@ LIBDFU_EXPORT void libdfu_set_dfuse_options(const char *dfuse_opts)
 {
   dfuse_options = strdup(dfuse_opts);
 }
+
+static void (*libdfu_stderr_callback)(const char *) = NULL;
+
+LIBDFU_EXPORT void libdfu_set_stderr_callback(void (*callback)(const char *))
+{
+  libdfu_stderr_callback = callback;
+}
+
+static void (*libdfu_stdout_callback)(const char *) = NULL;
+
+LIBDFU_EXPORT void libdfu_set_stdout_callback(void (*callback)(const char *))
+{
+  libdfu_stdout_callback = callback;
+}
+
+static void (*libdfu_progress_callback)(const char *, int) = NULL;
+
+LIBDFU_EXPORT void libdfu_set_progress_callback(void (*callback)(const char *, int))
+{
+  libdfu_progress_callback = callback;
+}
+
+void lib_printf(const char* format, ...)
+{
+  if (libdfu_stdout_callback != NULL) {
+    static char* data = NULL;
+    if (data == NULL) {
+      data = malloc(4096);
+    }
+    va_list args;
+    va_start(args, format);
+    vsnprintf(data, 4096, format, args);
+    va_end(args);
+    libdfu_stdout_callback(data);
+  }
+}
+
+void lib_fprintf(FILE* stream, const char* format, ...)
+{
+  if (libdfu_stderr_callback != NULL) {
+    static char* data = NULL;
+    if (data == NULL) {
+      data = malloc(4096);
+    }
+    va_list args;
+        va_start(args, format);
+    vsnprintf(data, 4096, format, args);
+        va_end(args);
+    libdfu_stderr_callback(data);
+  }
+}
