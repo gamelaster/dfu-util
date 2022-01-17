@@ -8,9 +8,13 @@
 # define PACKAGE_STRING "dfu-util 0.11-msvc"
 # define PACKAGE_BUGREPORT "http://sourceforge.net/p/dfu-util/tickets/"
 # include <io.h>
+# ifndef HAVE_WINDOWS_H
 /* FIXME if off_t is a typedef it is not a define */
-# ifndef off_t
-#  define off_t long int
+#  ifndef off_t
+#   define off_t long int
+#  endif
+# else
+# include <sys/types.h>
 # endif
 #endif /* HAVE_CONFIG_H */
 
@@ -68,6 +72,16 @@
 
 #ifndef O_BINARY
 # define O_BINARY   0
+#endif
+
+#ifdef HAVE_WINDOWS_H
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#if defined(_WIN64)
+#define SSIZE_MAX _I64_MAX
+#else
+#define SSIZE_MAX LONG_MAX
+#endif
 #endif
 
 #endif /* PORTABLE_H */
