@@ -55,7 +55,7 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 
 	buf = dfu_malloc(xfer_size);
 
-	printf("Copying data from DFU device to PC\n");
+	_PRINTF("Copying data from DFU device to PC\n");
 
 	while (1) {
 		int rc;
@@ -86,12 +86,12 @@ int dfuload_do_upload(struct dfu_if *dif, int xfer_size,
 		dfu_progress_bar("Upload", total_bytes, total_bytes);
 	} else {
 		dfu_progress_bar("Upload", total_bytes, expected_size);
-		printf("\n");
+		_PRINTF("\n");
 	}
 	if (total_bytes == 0)
-		printf("\nFailed.\n");
+		_PRINTF("\nFailed.\n");
 	else
-		printf("Received a total of %lli bytes\n", (long long) total_bytes);
+		_PRINTF("Received a total of %lli bytes\n", (long long) total_bytes);
 
 	if (expected_size != 0 && total_bytes != expected_size)
 		warnx("Unexpected number of bytes uploaded from device");
@@ -107,7 +107,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 	struct dfu_status dst;
 	int ret;
 
-	printf("Copying data from PC to DFU device\n");
+	_PRINTF("Copying data from PC to DFU device\n");
 
 	buf = file->firmware;
 	expected_size = file->size.total - file->size.suffix;
@@ -149,13 +149,13 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 			/* Wait while device executes flashing */
 			milli_sleep(dst.bwPollTimeout);
 			if (verbose > 1)
-				fprintf(stderr, "Poll timeout %i ms\n", dst.bwPollTimeout);
+				_FPRINTF(stderr, "Poll timeout %i ms\n", dst.bwPollTimeout);
 
 		} while (1);
 
 		if (dst.bStatus != DFU_STATUS_OK) {
-			printf(" failed!\n");
-			printf("DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
+			_PRINTF(" failed!\n");
+			_PRINTF("DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
 				dfu_state_to_string(dst.bState), dst.bStatus,
 				dfu_status_to_string(dst.bStatus));
 			ret = -1;
@@ -175,7 +175,7 @@ int dfuload_do_dnload(struct dfu_if *dif, int xfer_size, struct dfu_file *file)
 	dfu_progress_bar("Download", bytes_sent, bytes_sent);
 
 	if (verbose)
-		printf("Sent a total of %lli bytes\n", (long long) bytes_sent);
+		_PRINTF("Sent a total of %lli bytes\n", (long long) bytes_sent);
 
 get_status:
 	/* Transition to MANIFEST_SYNC state */
@@ -185,7 +185,7 @@ get_status:
 		      libusb_error_name(ret));
 		goto out;
 	}
-	printf("DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
+	_PRINTF("DFU state(%u) = %s, status(%u) = %s\n", dst.bState,
 		dfu_state_to_string(dst.bState), dst.bStatus,
 		dfu_status_to_string(dst.bStatus));
 
@@ -201,17 +201,17 @@ get_status:
 		goto get_status;
 		break;
 	case DFU_STATE_dfuMANIFEST_WAIT_RST:
-		printf("Resetting USB to switch back to runtime mode\n");
+		_PRINTF("Resetting USB to switch back to runtime mode\n");
 		ret = libusb_reset_device(dif->dev_handle);
 		if (ret < 0 && ret != LIBUSB_ERROR_NOT_FOUND) {
-			fprintf(stderr, "error resetting after download (%s)\n",
+			_FPRINTF(stderr, "error resetting after download (%s)\n",
 				libusb_error_name(ret));
 		}
 		break;
 	case DFU_STATE_dfuIDLE:
 		break;
 	}
-	printf("Done!\n");
+	_PRINTF("Done!\n");
 
 out:
 	return ret;

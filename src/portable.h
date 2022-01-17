@@ -44,13 +44,13 @@
 # include <errno.h>
 # include <string.h>
 # define warnx(...) do {\
-    fprintf(stderr, __VA_ARGS__);\
-    fprintf(stderr, "\n"); } while (0)
+    _FPRINTF(stderr, __VA_ARGS__);\
+    _FPRINTF(stderr, "\n"); } while (0)
 # define errx(eval, ...) do {\
     warnx(__VA_ARGS__);\
     exit(eval); } while (0)
 # define warn(...) do {\
-    fprintf(stderr, "%s: ", strerror(errno));\
+    _FPRINTF(stderr, "%s: ", strerror(errno));\
     warnx(__VA_ARGS__); } while (0)
 # define err(eval, ...) do {\
     warn(__VA_ARGS__);\
@@ -83,5 +83,7 @@ typedef SSIZE_T ssize_t;
 #define SSIZE_MAX LONG_MAX
 #endif
 #endif
+
+#include "lib.h"
 
 #endif /* PORTABLE_H */

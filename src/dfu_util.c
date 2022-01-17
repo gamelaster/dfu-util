@@ -243,15 +243,15 @@ static void probe_configuration(libusb_device *dev, struct libusb_device_descrip
 
 found_dfu:
 		if (func_dfu.bLength == 7) {
-			printf("Deducing device DFU version from functional descriptor "
+			_PRINTF("Deducing device DFU version from functional descriptor "
 			    "length\n");
 			func_dfu.bcdDFUVersion = libusb_cpu_to_le16(0x0100);
 		} else if (func_dfu.bLength < 9) {
-			printf("Error obtaining DFU functional descriptor\n");
-			printf("Please report this as a bug!\n");
-			printf("Warning: Assuming DFU version 1.0\n");
+			_PRINTF("Error obtaining DFU functional descriptor\n");
+			_PRINTF("Please report this as a bug!\n");
+			_PRINTF("Warning: Assuming DFU version 1.0\n");
 			func_dfu.bcdDFUVersion = libusb_cpu_to_le16(0x0100);
-			printf("Warning: Transfer size can not be detected\n");
+			_PRINTF("Warning: Transfer size can not be detected\n");
 			func_dfu.wTransferSize = 0;
 		}
 
@@ -462,7 +462,7 @@ void disconnect_devices(void)
 
 void print_dfu_if(struct dfu_if *dfu_if)
 {
-	printf("Found %s: [%04x:%04x] ver=%04x, devnum=%u, cfg=%u, intf=%u, "
+	_PRINTF("Found %s: [%04x:%04x] ver=%04x, devnum=%u, cfg=%u, intf=%u, "
 	       "path=\"%s\", alt=%u, name=\"%s\", serial=\"%s\"\n",
 	       dfu_if->flags & DFU_IFF_DFU ? "DFU" : "Runtime",
 	       dfu_if->vendor, dfu_if->product,

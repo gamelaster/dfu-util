@@ -104,7 +104,7 @@ struct memsegment *parse_memory_layout(char *intf_desc)
 		warnx("Could not read name, sscanf returned %d", ret);
 		return NULL;
 	}
-	printf("DfuSe interface name: \"%s\"\n", name);
+	_PRINTF("DfuSe interface name: \"%s\"\n", name);
 
 	intf_desc += scanned;
 	typestring = dfu_malloc(strlen(intf_desc));
@@ -179,7 +179,7 @@ struct memsegment *parse_memory_layout(char *intf_desc)
 			add_segment(&segment_list, segment);
 
 			if (verbose)
-				printf("Memory segment at 0x%08x %3d x %4d = "
+				_PRINTF("Memory segment at 0x%08x %3d x %4d = "
 				       "%5d (%s%s%s)\n",
 				       address, sectors, size, sectors * size,
 				       memtype & DFUSE_READABLE  ? "r" : "",

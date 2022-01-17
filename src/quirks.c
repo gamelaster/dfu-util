@@ -89,7 +89,7 @@ void fixup_dfuse_layout(struct dfu_if *dif, struct memsegment **segment_list)
 		struct memsegment *seg;
 		int count;
 
-		printf("Found GD32VF103, which reports a bad page size and "
+		_PRINTF("Found GD32VF103, which reports a bad page size and "
 		       "count for its internal memory.\n");
 
 		seg = find_segment(*segment_list, GD32VF103_FLASH_BASE);
@@ -121,7 +121,7 @@ void fixup_dfuse_layout(struct dfu_if *dif, struct memsegment **segment_list)
 
 		seg->end = seg->start + (count * seg->pagesize) - 1;
 
-		printf("Fixed layout based on part number: page size %d, "
+		_PRINTF("Fixed layout based on part number: page size %d, "
 		       "count %d.\n", seg->pagesize, count);
 	}
 }
