@@ -51,6 +51,7 @@
 #include "dfu_load.h"
 #include "dfu_util.h"
 #include "dfuse.h"
+#include "../include/dart-sdk/dart_api_dl.c"
 
 int verbose = 0;
 
@@ -206,7 +207,7 @@ LIBDFU_EXPORT int libdfu_execute()
 
   print_version();
   if (mode == MODE_VERSION) {
-    exit(EX_OK);
+    return EX_OK;
   }
 
 #if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
@@ -221,7 +222,7 @@ LIBDFU_EXPORT int libdfu_execute()
 #endif
   if (mode == MODE_NONE && !dfuse_options) {
     _FPRINTF(stderr, "You need to specify one of -D or -U\n");
-    exit(EX_USAGE);
+    return EX_USAGE;
   }
 
   if (match_config_index == 0) {
@@ -718,4 +719,106 @@ void lib_report_state(const char* state, int progress)
   if (libdfu_progress_callback != NULL) {
     libdfu_progress_callback(state, progress);
   }
+}
+
+static int64_t port_id = 0;
+
+LIBDFU_EXPORT int libdfu_init_dart(void* api)
+{
+  return Dart_InitializeApiDL(api) == 0;
+}
+
+const char* escape_msg(const char* msg)
+{
+  uint16_t length = 0;
+  for (uint16_t i = 0; i < strlen(msg); i++) {
+    length++;
+    if (msg[i] == '"' || msg[i] == '\n' || msg[i] == '\r') {
+      length++;
+    }
+  }
+  // TODO: Very ugly but it will work.
+  char* new_msg = malloc(length + 1);
+  uint16_t pos = 0;
+  for (uint16_t i = 0; i < strlen(msg); i++) {
+    /*if (msg[i] == '"' || msg[i] == '\n' || msg[i] == '\r') {
+      new_msg[pos++] = '\\';
+    }
+    new_msg[pos++] = msg[i]; */
+    switch (msg[i]) {
+      case '\n':
+        new_msg[pos++] = '\\';
+        new_msg[pos++] = 'n';
+        break;
+      case '\r':
+        new_msg[pos++] = '\\';
+        new_msg[pos++] = 'r';
+        break;
+      case '"':
+        new_msg[pos++] = '\\';
+      default:
+        new_msg[pos++] = msg[i];
+        break;
+    }
+  }
+  new_msg[length] = '\0';
+  return new_msg;
+}
+
+static void _progress_callback(const char* msg, int progress)
+{
+  char output[180];
+  const char* escaped_msg = escape_msg(msg);
+  sprintf(output, "{\"type\":\"progress\",\"state\":\"%s\",\"progress\":%d}", escaped_msg, progress);
+  free(escaped_msg);
+  Dart_CObject obj;
+  obj.type = Dart_CObject_kString;
+  obj.value.as_string = output;
+  Dart_PostCObject_DL(port_id, &obj);
+}
+
+static void _stdout_callback(const char* msg)
+{
+  char output[1024];
+  const char* escaped_msg = escape_msg(msg);
+  sprintf(output, "{\"type\":\"stdout\",\"msg\":\"%s\"}", escaped_msg);
+  free(escaped_msg);
+  Dart_CObject obj;
+  obj.type = Dart_CObject_kString;
+  obj.value.as_string = output;
+  Dart_PostCObject_DL(port_id, &obj);
+}
+
+static void _stderr_callback(const char* msg)
+{
+  char output[1024];
+  const char* escaped_msg = escape_msg(msg);
+  sprintf(output, "{\"type\":\"stderr\",\"msg\":\"%s\"}", escaped_msg);
+  free(escaped_msg);
+  Dart_CObject obj;
+  obj.type = Dart_CObject_kString;
+  obj.value.as_string = output;
+  Dart_PostCObject_DL(port_id, &obj);
+}
+
+static unsigned long dart_thread(void* data) {
+  int ret = libdfu_execute();
+  char output[180];
+  sprintf(output, "{\"type\":\"finish\",\"code\":%d}", ret);
+  Dart_CObject obj;
+  obj.type = Dart_CObject_kString;
+  obj.value.as_string = output;
+  Dart_PostCObject_DL(port_id, &obj);
+  return 0;
+}
+
+LIBDFU_EXPORT void libdfu_execute_dart(int64_t port)
+{
+  port_id = port;
+  libdfu_progress_callback = _progress_callback;
+  libdfu_stdout_callback = _stdout_callback;
+  libdfu_stderr_callback = _stderr_callback;
+#ifdef WIN32
+  CreateThread(NULL, 0, dart_thread, NULL, 0, NULL);
+#endif
 }
