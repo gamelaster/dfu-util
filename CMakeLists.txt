@@ -52,9 +52,9 @@ add_library(libdfu-util SHARED src/lib.c
 
 if (WIN32)
     target_compile_definitions(libdfu-util PRIVATE HAVE_WINDOWS_H _CRT_SECURE_NO_WARNINGS)
-    target_include_directories(libdfu-util PRIVATE ../libusb-prebuilt/include/libusb-1.0)
-    target_link_directories(libdfu-util PRIVATE ../libusb-prebuilt/dll)
-    target_link_libraries(libdfu-util PRIVATE libusb-1.0)
+    target_include_directories(libdfu-util PRIVATE ../libusb-prebuilt/include/libusb-1.0 ./include/dart-sdk/)
+    target_link_directories(libdfu-util PRIVATE ../libusb-prebuilt/dll) # C:\\tools\\flutter\\bin\\cache\\dart-sdk\\bin)
+    target_link_libraries(libdfu-util PRIVATE libusb-1.0) # dart)
 elseif (APPLE)
     target_include_directories(libdfu-util PRIVATE ${CMAKE_SOURCE_DIR}/../outdist/include/libusb-1.0)
     target_link_directories(libdfu-util PRIVATE ${CMAKE_SOURCE_DIR}/../outdist/lib) # TODO: Check for pkg-config?
