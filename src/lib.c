@@ -150,27 +150,6 @@ static void parse_serial(char *str)
   if (*match_serial_dfu == 0) match_serial_dfu = NULL;
 }
 
-static int parse_number(char *str, char *nmb)
-{
-  char *endptr;
-  long val;
-
-  errno = 0;
-  val = strtol(nmb, &endptr, 0);
-
-  if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
-      || (errno != 0 && val == 0) || (*endptr != '\0')) {
-    errx(EX_USAGE, "Something went wrong with the argument of --%s\n", str);
-  }
-
-  if (endptr == nmb) {
-    errx(EX_USAGE, "No digits were found from the argument of --%s\n", str);
-  }
-
-  return (int)val;
-}
-
-
 static void print_version(void)
 {
   _PRINTF(PACKAGE_STRING "\n\n");

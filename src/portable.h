@@ -2,12 +2,19 @@
 #ifndef PORTABLE_H
 #define PORTABLE_H
 
+#include "lib.h"
+
+
 #ifndef HAVE_CONFIG_H
 # define PACKAGE "dfu-util"
 # define PACKAGE_VERSION "0.11-msvc"
 # define PACKAGE_STRING "dfu-util 0.11-msvc"
 # define PACKAGE_BUGREPORT "http://sourceforge.net/p/dfu-util/tickets/"
-# include <io.h>
+# ifdef __APPLE__
+#  include <sys/uio.h>
+# else
+#  include <io.h>
+# endif
 # ifndef HAVE_WINDOWS_H
 /* FIXME if off_t is a typedef it is not a define */
 #  ifndef off_t
@@ -84,6 +91,5 @@ typedef SSIZE_T ssize_t;
 #endif
 #endif
 
-#include "lib.h"
 
 #endif /* PORTABLE_H */
