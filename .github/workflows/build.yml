@@ -1,0 +1,44 @@
+name: CI
+
+on: [push, pull_request]
+# On pushes to the main repo OR a pull request, we run all of the builds and upload the assets
+# Also runs formatting checks and code errors on the linux host (as its usually faster to get allocated resources)
+
+jobs:
+  # build-windows:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+      
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
+      - name: Build libusb
+        run: |
+          wget https://github.com/libusb/libusb/releases/download/v1.0.25/libusb-1.0.25.tar.bz2
+          tar -xvzf libusb-1.0.25.tar.bz2
+          rm -rf libusb-1.0.25.tar.bz2
+          cd libusb-1.0.25
+          ./configure
+          make
+          mkdir ../output
+          cp libusb/.libs/libusb-1.0.0.dylib ../output/libusb-1.0.0.dylib
+          cd ..
+      - name: Build dfu-util
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --target libdfu-util
+          cp libdfu-util.1.0.dylib ../output/libdfu-util.1.0.dylib
+      - name: Upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: LibUSB + LibDFU-Util libraries (MacOS)
+          path: |
+            output/libusb-1.0.0.dylib
+            output/libdfu-util.1.0.dylib
+          if-no-files-found: error
