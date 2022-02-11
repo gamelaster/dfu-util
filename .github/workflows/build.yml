@@ -5,11 +5,40 @@ on: [push, pull_request]
 # Also runs formatting checks and code errors on the linux host (as its usually faster to get allocated resources)
 
 jobs:
-  # build-windows:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-      
+  build-windows:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
+      - name: Build libusb
+        run: |
+          mkdir output
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          curl https://github.com/libusb/libusb/archive/refs/tags/v1.0.25.zip --output v1.0.25.zip -L
+          unzip v1.0.25.zip
+          rm -rf v1.0.25.zip
+          cd libusb-1.0.25\msvc
+          msbuild.exe libusb_dll_2019.vcxproj /p:Configuration=Release /p:Platform=x64
+          cd ..\..\
+          cp libusb-1.0.25\x64\Release\dll\libusb-1.0.dll output\libusb-1.0.dll
+      - name: Build dfu-util
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --target libdfu-util --config Release
+          cp Release\dfu-util.dll ..\output\dfu-util.dll
+      - name: Upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: LibUSB + LibDFU-Util libraries (Windows)
+          path: |
+            output/libusb-1.0.dll
+            output/dfu-util.dll
+          if-no-files-found: error
 
   build-macos:
     runs-on: macos-latest
@@ -31,7 +60,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build . --target libdfu-util
           cp libdfu-util.1.0.dylib ../output/libdfu-util.1.0.dylib
       - name: Upload results

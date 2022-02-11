@@ -59,8 +59,8 @@ set_target_properties(libdfu-util PROPERTIES
 
 if (WIN32)
     target_compile_definitions(libdfu-util PRIVATE HAVE_WINDOWS_H _CRT_SECURE_NO_WARNINGS)
-    target_include_directories(libdfu-util PRIVATE ../libusb-prebuilt/include/libusb-1.0 ./include/dart-sdk/)
-    target_link_directories(libdfu-util PRIVATE ../libusb-prebuilt/dll)
+    target_include_directories(libdfu-util PRIVATE ${CMAKE_SOURCE_DIR}/libusb-1.0.25/libusb ./include/dart-sdk/)
+    target_link_directories(libdfu-util PRIVATE ${CMAKE_SOURCE_DIR}/libusb-1.0.25/x64/Release/dll/)
     target_link_libraries(libdfu-util PRIVATE libusb-1.0)
 elseif (APPLE)
     target_include_directories(libdfu-util PRIVATE ${CMAKE_SOURCE_DIR}/libusb-1.0.25/libusb  ./include/dart-sdk/)
