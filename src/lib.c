@@ -53,6 +53,10 @@
 #include "dfuse.h"
 #include "../include/dart-sdk/dart_api_dl.c"
 
+#ifdef __APPLE__
+#include <pthread.h>
+#endif
+
 int verbose = 0;
 
 struct dfu_if *dfu_root = NULL;
@@ -799,5 +803,10 @@ LIBDFU_EXPORT void libdfu_execute_dart(int64_t port)
   libdfu_stderr_callback = _stderr_callback;
 #ifdef WIN32
   CreateThread(NULL, 0, dart_thread, NULL, 0, NULL);
+#elif defined(__APPLE__)
+  pthread_t thread_id;
+  pthread_create(&thread_id, NULL, dart_thread, NULL);
+#else
+  #error "Threading not supported"
 #endif
 }
