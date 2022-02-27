@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 project(dfu-util)
 
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
+endif ()
+
 add_executable(dfu-util src/main.c
     src/portable.h
     src/dfu_load.c
@@ -33,22 +37,22 @@ elseif (APPLE)
 endif ()
 
 add_library(libdfu-util SHARED src/lib.c
-        src/portable.h
-        src/dfu_load.c
-        src/dfu_load.h
-        src/dfu_util.c
-        src/dfu_util.h
-        src/dfuse.c
-        src/dfuse.h
-        src/dfuse_mem.c
-        src/dfuse_mem.h
-        src/dfu.c
-        src/dfu.h
-        src/usb_dfu.h
-        src/dfu_file.c
-        src/dfu_file.h
-        src/quirks.c
-        src/quirks.h)
+    src/portable.h
+    src/dfu_load.c
+    src/dfu_load.h
+    src/dfu_util.c
+    src/dfu_util.h
+    src/dfuse.c
+    src/dfuse.h
+    src/dfuse_mem.c
+    src/dfuse_mem.h
+    src/dfu.c
+    src/dfu.h
+    src/usb_dfu.h
+    src/dfu_file.c
+    src/dfu_file.h
+    src/quirks.c
+    src/quirks.h)
 
 set_target_properties(libdfu-util PROPERTIES
     PUBLIC_HEADER src/lib.h

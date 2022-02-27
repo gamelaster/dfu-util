@@ -47,6 +47,7 @@ jobs:
       - uses: lukka/get-cmake@latest
       - name: Build libusb
         run: |
+          export MACOSX_DEPLOYMENT_TARGET=10.11
           wget https://github.com/libusb/libusb/releases/download/v1.0.25/libusb-1.0.25.tar.bz2
           tar -xvzf libusb-1.0.25.tar.bz2
           rm -rf libusb-1.0.25.tar.bz2
