@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(dfu-util)
 
 if (APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version" FORCE)
 endif ()
 
 add_executable(dfu-util src/main.c
