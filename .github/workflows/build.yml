@@ -63,6 +63,7 @@ jobs:
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build . --target libdfu-util
+          install_name_tool -change /usr/local/lib/libusb-1.0.0.dylib @rpath/libusb-1.0.0.dylib libdfu-util.1.0.dylib
           cp libdfu-util.1.0.dylib ../output/libdfu-util.1.0.dylib
       - name: Upload results
         uses: actions/upload-artifact@v2
